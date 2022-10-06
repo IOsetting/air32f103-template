@@ -5,7 +5,7 @@ BUILD_DIR 		= Build
 ##### Options #####
 
 # Build with FreeRTOS, y:yes, n:no
-USE_FREERTOS	?= y
+USE_FREERTOS	?= n
 # Programmer, jlink or st-flash
 FLASH_PROGRM    ?= jlink
 
