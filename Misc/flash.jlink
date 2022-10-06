@@ -1,0 +1,4 @@
+erase
+loadfile Build/app.bin 0 noreset
+reset
+exit

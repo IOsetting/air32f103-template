@@ -88,4 +88,10 @@ clean:
 	rm -rf $(BDIR)/*
 
 flash:
+ifeq ($(FLASH_PROGRM),st-flash)
 	$(ST_FLASH) --reset write $(BDIR)/$(PROJECT).bin 0x8000000
+else ifeq ($(FLASH_PROGRM),jlink)
+	$(JLINKEXE) -device $(JLINK_DEVICE) -if swd -speed 4000 -CommanderScript $(TOP)/Misc/flash.jlink
+else
+    @echo "FLASH_PROGRM is invalid\n"
+endif
