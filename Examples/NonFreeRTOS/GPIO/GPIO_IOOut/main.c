@@ -30,7 +30,7 @@ int main(void)
 	printf("SYSCLK: %3.1fMhz, HCLK: %3.1fMhz, PCLK1: %3.1fMhz, PCLK2: %3.1fMhz, ADCCLK: %3.1fMhz\n",
 			   (float)clocks.SYSCLK_Frequency / 1000000, (float)clocks.HCLK_Frequency / 1000000,
 			   (float)clocks.PCLK1_Frequency / 1000000, (float)clocks.PCLK2_Frequency / 1000000, (float)clocks.ADCCLK_Frequency / 1000000);
-	printf("AIR32F103 GPIO IO Out Tset.\n");
+	printf("AIR32F103 GPIO Output Test\n");
 	GPIO_Configuration();
 
 	while (1)
