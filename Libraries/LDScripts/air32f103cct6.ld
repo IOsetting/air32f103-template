@@ -1,10 +1,10 @@
 /*
 *****************************************************************************
 **
-**  File        : air32f103cbt6.ld
+**  File        : air32f103cct6.ld
 **
-**  Abstract    : Linker script for AIR32F103CBT6 Device with
-**                128KByte FLASH, 32KByte RAM
+**  Abstract    : Linker script for AIR32F103CCT6 Device with
+**                256KByte FLASH, 64KByte RAM
 **
 **  Target      : Luatos AIR32
 **
@@ -26,8 +26,8 @@ _Min_Stack_Size = 0x400 ; /* required amount of stack */
 /* Memories definition */
 MEMORY
 {
-  FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 128K
-  RAM (xrw)       : ORIGIN = 0x20000000, LENGTH = 32K
+  FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 256K
+  RAM (xrw)       : ORIGIN = 0x20000000, LENGTH = 64K
   MEMORY_B1 (rx)  : ORIGIN = 0x60000000, LENGTH = 0K
 }
 

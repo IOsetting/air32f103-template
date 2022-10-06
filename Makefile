@@ -24,7 +24,7 @@ CFILES :=
 # ASM source folders
 ADIRS	:= User
 # ASM single files
-AFILES	:= Libraries/CORE/startup_air32f10x_md.s
+AFILES	:= Libraries/DeviceSupport/startup/arm-gcc/startup_air32f10x_md.s
 
 # Include paths
 INCLUDES	:= Libraries/CORE \

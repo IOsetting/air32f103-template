@@ -43,12 +43,8 @@ TGT_CFLAGS 	+= $(OPT) $(CSTD) $(ARCH_FLAGS) $(addprefix -D, $(LIB_FLAGS)) -ggdb3
 TGT_ASFLAGS += $(ARCH_FLAGS)
 # ld flags
 TGT_LDFLAGS += $(ARCH_FLAGS) -specs=nano.specs -specs=nosys.specs -static -lc -lm \
-				-Wl,-cref,-u,Reset_Handler \
 				-Wl,-Map=$(BDIR)/$(PROJECT).map \
 				-Wl,--gc-sections \
-				-Wl,--defsym=malloc_getpagesize_P=0x80 \
-				-Wl,--start-group \
-				-Wl,--end-group \
 				-Wl,--print-memory-usage
 # include paths
 TGT_INCFLAGS := $(addprefix -I $(TOP)/, $(INCLUDES))
