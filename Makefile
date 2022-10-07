@@ -1,3 +1,5 @@
+##### Project #####
+
 PROJECT 		?= app
 BUILD_DIR 		= Build
 
@@ -6,8 +8,8 @@ BUILD_DIR 		= Build
 
 # Build with FreeRTOS, y:yes, n:no
 USE_FREERTOS	?= n
-# Programmer, jlink or st-flash
-FLASH_PROGRM    ?= jlink
+# Programmer, jlink or stlink
+FLASH_PROGRM    ?= stlink
 
 
 ##### Toolchains #######
