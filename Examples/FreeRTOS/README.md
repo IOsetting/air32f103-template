@@ -4,9 +4,10 @@ Current version: FreeRTOSv202112.00
 
 ## Build With FreeRTOS
 
-Edit Makefile, uncomment following line will enable FreeRTOS support
+Edit Makefile, change `USE_FREERTOS	?= n` to `USE_FREERTOS	?= y` will enable FreeRTOS support
 ```
-#LIB_FLAGS       += USE_FREERTOS
+# Build with FreeRTOS, y:yes, n:no
+USE_FREERTOS	?= y
 ```
 By default `heap_4.c` is selected, edit it if you want to switch to other memory management
 ```
