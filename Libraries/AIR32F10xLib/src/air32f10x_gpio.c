@@ -583,34 +583,6 @@ void GPIO_PinRemapConfig(uint32_t GPIO_Remap, FunctionalState NewState)
   }  
 }
 
-/*
-	* @brief  Changes the mapping of the specified pin.
-	* @param  GPIO_Remap: selects the pin to remap.
-	*   This parameter can be one of the following values:
-	*     @arg GPIO_Remap_FSMC1             : FSMC1 mapping FSMC_NWE:PD2
-	*     @arg GPIO_Remap_FSMC2             : FSMC2 mapping FSMC_NWE:PC2
-*/
-void GPIO_PinRemapConfigUser(uint32_t GPIO_Remap, FunctionalState NewState)
-{
-	/* Check the parameters */
-	assert_param(IS_air_GPIO_REMAP(GPIO_Remap));
-	assert_param(IS_FUNCTIONAL_STATE(NewState));  
-	
-	if(GPIO_Remap == GPIO_Remap_FSMC1 || GPIO_Remap == GPIO_Remap_FSMC2)
-	{
-    if (NewState == DISABLE)
-    {
-      AFIO->MAPR2 = AFIO->MAPR2 | air_REMAP_FSMC_MASK;
-		  AFIO->MAPR2 &= ~GPIO_Remap;
-    }
-    else
-    {
-      AFIO->MAPR2 = AFIO->MAPR2 & ~air_REMAP_FSMC_MASK;
-		  AFIO->MAPR2 |= GPIO_Remap;
-    }
-		
-	}
-}
 
 /**
   * @brief  Selects the GPIO pin used as EXTI Line.

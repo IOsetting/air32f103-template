@@ -1,6 +1,6 @@
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __air_RCC_H
-#define __air_RCC_H
+#ifndef __air_RCC_EX_H
+#define __air_RCC_EX_H
 
 #ifdef __cplusplus
  extern "C" {
