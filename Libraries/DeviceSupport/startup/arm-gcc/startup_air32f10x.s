@@ -1,42 +1,20 @@
 /**
   ******************************************************************************
-  * @file      startup_stm32f10x_hd.s
-  * @author    MCD Application Team
-  * @version   V3.6.4
-  * @date      22-September-2016
-  * @brief     STM32F10x High Density Devices vector table for GCC based toolchain.
+  * @file      startup_air32f10x.s
+  * @brief     AIR32F10x vector table for GCC based toolchain.
   *            This module performs:
   *                - Set the initial SP
   *                - Set the initial PC == Reset_Handler,
-  *                - Set the vector table entries with the exceptions ISR address,
-  *                - Configure the clock system  
-  *                - Configure external SRAM mounted on STM3210E-EVAL board
-  *                  to be used as data memory (optional, to be enabled by user)
+  *                - Set the vector table entries with the exceptions ISR address
+  *                - Configure the clock system
   *                - Branches to main in the C library (which eventually
   *                  calls main()).
   *            After Reset the Cortex-M3 processor is in Thread mode,
   *            priority is Privileged, and the Stack is set to Main.
   ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; COPYRIGHT 2016 STMicroelectronics</center></h2>
-  *
-  * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
-  * You may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at:
-  *
-  *        http://www.st.com/software_license_agreement_liberty_v2
-  *
-  * Unless required by applicable law or agreed to in writing, software 
-  * distributed under the License is distributed on an "AS IS" BASIS, 
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  *
-  ******************************************************************************
   */
 
-    .syntax unified
+	.syntax unified
 	.cpu cortex-m3
 	.fpu softvfp
 	.thumb
@@ -56,7 +34,7 @@ defined in linker script */
 /* end address for the .bss section. defined in linker script */
 .word	_ebss
 
-.equ  BootRAM,        0xF1E0F85F
+.equ  BootRAM, 0xF108F85F
 /**
  * @brief  This is the code that gets called when the processor first
  *          starts execution following a reset event. Only the absolutely
@@ -98,7 +76,6 @@ LoopFillZerobss:
 	ldr	r3, = _ebss
 	cmp	r2, r3
 	bcc	FillZerobss
-
 /* Call the clock system intitialization function.*/
     bl  SystemInit
 /* Call static constructors */
@@ -110,11 +87,10 @@ LoopFillZerobss:
 
 /**
  * @brief  This is the code that gets called when the processor receives an
- *         unexpected interrupt.  This simply enters an infinite loop, preserving
+ *         unexpected interrupt. This simply enters an infinite loop, preserving
  *         the system state for examination by a debugger.
- *
  * @param  None
- * @retval : None
+ * @retval None
 */
     .section	.text.Default_Handler,"ax",%progbits
 Default_Handler:
@@ -218,6 +194,9 @@ g_pfnVectors:
 	.word	0
 	.word	0
 	.word	0
+	.word	SYMC_IRQHandler
+	.word	RNG_IRQHandler
+	.word	SENSOR_IRQHandler
 	.word	0
 	.word	0
 	.word	0
@@ -254,8 +233,20 @@ g_pfnVectors:
 	.word	0
 	.word	0
 	.word	0
-	.word	BootRAM       /* @0x1E0. This is for boot in RAM mode for
-                         STM32F10x High Density devices. */
+	.word	0
+	.word	0
+	.word	0
+	.word	0
+	.word	0
+	.word	0
+	.word	0
+	.word	0
+	.word	0
+	.word	0
+	.word	0
+	.word	0
+	.word	0
+	.word	BootRAM
 
 /*******************************************************************************
 *
@@ -265,16 +256,16 @@ g_pfnVectors:
 *
 *******************************************************************************/
 
-  .weak	NMI_Handler
+	.weak	NMI_Handler
 	.thumb_set NMI_Handler,Default_Handler
 
-  .weak	HardFault_Handler
+	.weak	HardFault_Handler
 	.thumb_set HardFault_Handler,Default_Handler
 
-  .weak	MemManage_Handler
+	.weak	MemManage_Handler
 	.thumb_set MemManage_Handler,Default_Handler
 
-  .weak	BusFault_Handler
+	.weak	BusFault_Handler
 	.thumb_set BusFault_Handler,Default_Handler
 
 	.weak	UsageFault_Handler
@@ -472,4 +463,11 @@ g_pfnVectors:
 	.weak	DMA2_Channel4_5_IRQHandler
 	.thumb_set DMA2_Channel4_5_IRQHandler,Default_Handler
 
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+	.weak	SYMC_IRQHandler
+	.thumb_set SYMC_IRQHandler,Default_Handler
+
+	.weak	RNG_IRQHandler
+	.thumb_set RNG_IRQHandler,Default_Handler
+
+	.weak	SENSOR_IRQHandler
+	.thumb_set SENSOR_IRQHandler,Default_Handler
