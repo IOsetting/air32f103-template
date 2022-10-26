@@ -110,6 +110,20 @@ __attribute__((weak)) int _fstat(int fd, struct stat *st)
     errno = EBADF;
     return 0;
 }
+
+int __attribute__((weak)) _getpid(void)
+{
+  errno = ENOSYS;
+  return -1;
+}
+
+__attribute__((weak)) int _kill(pid_t pid, int sig)
+{
+    (void)pid;
+    (void)sig;
+    errno = ENOSYS;
+    return -1;
+}
 #endif
 
 
