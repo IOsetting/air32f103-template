@@ -111,7 +111,7 @@ __attribute__((weak)) int _fstat(int fd, struct stat *st)
     return 0;
 }
 
-int __attribute__((weak)) _getpid(void)
+__attribute__((weak)) int _getpid(void)
 {
   errno = ENOSYS;
   return -1;

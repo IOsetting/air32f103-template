@@ -166,41 +166,31 @@ typedef enum
 
 #define SysFreq_Set            (*((void (*)(uint32_t, FlashClkDiv , uint8_t, uint8_t))(*(uint32_t *)0x1FFFD00C)))
 
-uint32_t AIR_RCC_PLLConfig(uint32_t RCC_PLLSource, uint32_t RCC_PLLMul, uint8_t Latency)
-{    
+__attribute__((optimize("-O0"))) uint32_t AIR_RCC_PLLConfig(uint32_t RCC_PLLSource, uint32_t RCC_PLLMul, uint8_t Latency)
+{
     uint32_t sramsize = 0;
     /* Check the parameters */
     assert_param(IS_RCC_PLL_SOURCE(RCC_PLLSource));
     assert_param(IS_RCC_PLL_MUL(RCC_PLLMul));
 
     *(uint32_t *)(0x400210F0) = BIT(0);     // Enable sys_cfg gate control
-    __NOP();                                // Insert NOP() to avoid compiler optimization
     *(uint32_t *)(0x40016C00) = 0xa7d93a86; // Unlock from level 1 to 3
-    __NOP();
     *(uint32_t *)(0x40016C00) = 0xab12dfcd;
-    __NOP();
     *(uint32_t *)(0x40016C00) = 0xcded3526;
-    __NOP();
     sramsize = *(uint32_t *)(0x40016C18);
     *(uint32_t *)(0x40016C18) = 0x200183FF; // Set sram size, enable BOOT for sram
-    __NOP();
     *(uint32_t *)(0x4002228C) = 0xa5a5a5a5; // Unlock QSPI
-    __NOP();
+
     SysFreq_Set(RCC_PLLMul,Latency ,0,1);
     RCC->CFGR = (RCC->CFGR & ~0x00030000) | RCC_PLLSource;
 
     // Restore previous config
     *(uint32_t *)(0x40016C18) = sramsize;
-    __NOP();
     *(uint32_t *)(0x400210F0) = 0;          // Enable sys_cfg gate control
-    __NOP();
     *(uint32_t *)(0x40016C00) = ~0xa7d93a86;// Lock from level 1 to 3
-    __NOP();
     *(uint32_t *)(0x40016C00) = ~0xab12dfcd;
-    __NOP();
     *(uint32_t *)(0x40016C00) = ~0xcded3526;
-    __NOP();
     *(uint32_t *)(0x4002228C) = ~0xa5a5a5a5;// Lock QSPI
-    __NOP();
+
     return 1;
 }
