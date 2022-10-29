@@ -39,13 +39,20 @@ ARCH_FLAGS	:= -mthumb -mcpu=cortex-m3
 
 # c flags
 TGT_CFLAGS 	+= $(OPT) $(CSTD) $(ARCH_FLAGS) $(addprefix -D, $(LIB_FLAGS)) -ggdb3
+
 # asm flags
 TGT_ASFLAGS += $(ARCH_FLAGS)
+
 # ld flags
 TGT_LDFLAGS += $(ARCH_FLAGS) -specs=nano.specs -specs=nosys.specs -static -lc -lm \
 				-Wl,-Map=$(BDIR)/$(PROJECT).map \
 				-Wl,--gc-sections \
 				-Wl,--print-memory-usage
+
+ifeq ($(ENABLE_PRINTF_FLOAT),y)
+TGT_LDFLAGS	+= -u _printf_float
+endif
+
 # include paths
 TGT_INCFLAGS := $(addprefix -I $(TOP)/, $(INCLUDES))
 
