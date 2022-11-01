@@ -2,7 +2,6 @@
  * Example of xTaskCreate(), vTaskDelay() and vTaskStartScheduler()
  * 3 leads blink in different rates
  */
-#include <inttypes.h>
 #include <stdlib.h>
 #include <air32f10x.h>
 #include <air32f10x_gpio.h>
