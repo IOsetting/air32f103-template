@@ -41,13 +41,21 @@ void taskUART(void *pvParameters)
     {
         while (USART_GetFlagStatus(USART1, USART_FLAG_RXNE) == SET)
         {
-            c = (uint8_t)USART_ReceiveData(USART1);
-            USART_SendData(USART1, c);
-            while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET);
+            c = USART_ReceiveData(USART1);
+            if (c == 0x7F)
+            {
+                USART_Print(USART1, '\b');
+                USART_Print(USART1, ' ');
+                USART_Print(USART1, '\b');
+            }
+            else
+            {
+                USART_Print(USART1, c);
+            }
+            
             GPIO_ResetBits(GPIOC, GPIO_Pin_13);
             xTimerStart(timer, portMAX_DELAY);
         }
-        vTaskDelay(1);
     }
 }
 

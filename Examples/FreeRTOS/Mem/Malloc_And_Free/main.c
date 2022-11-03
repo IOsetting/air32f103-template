@@ -10,11 +10,10 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
-
-#define BUF_SIZE        50
+#include "ring_buffer.h"
 
 volatile uint8_t rx_flag = 0;
-uint8_t *data_ptr, in[BUF_SIZE];
+uint8_t *data_ptr;
 
 /**
  * CR: 0x0D, \r, this will be ignored
@@ -22,8 +21,11 @@ uint8_t *data_ptr, in[BUF_SIZE];
 */
 void taskRX(void *pvParameters)
 {
-    uint8_t c, pos = 0;
+    uint8_t c;
+    uint16_t len;
     (void)(pvParameters);
+
+    ring_buffer_reset();
 
     while (1)
     {
@@ -35,21 +37,26 @@ void taskRX(void *pvParameters)
             {
                 continue;
             }
-            in[pos++] = c;
-
-            if (pos == BUF_SIZE || c == '\n')
+            if (c == '\n')
             {
-                in[pos - 1] = '\0';
-                /* For debug */
-                //printf("%x %s\n", pos, in);
-                if (pos > 0 && rx_flag == 0 && data_ptr == NULL)
+                c = '\0';
+            }
+            ring_buffer_push(c);
+
+            if (c == '\0')
+            {
+                len = ring_buffer_size();
+                // Length (including \0) > 1
+                if (len > 1 && rx_flag == 0 && data_ptr == NULL)
                 {
-                    data_ptr = (uint8_t *)pvPortMalloc((pos + 1) * sizeof(uint8_t));
+                    data_ptr = (uint8_t *)pvPortMalloc((len) * sizeof(uint8_t));
                     configASSERT(data_ptr);
-                    memcpy(data_ptr, in, pos + 1);
+                    ring_buffer_read(data_ptr);
+                    printf("%s\n", data_ptr);
                     rx_flag = 1;
                 }
-                pos = 0;
+                // Clear the buffer
+                ring_buffer_reset();
             }
         }
     }
@@ -59,7 +66,7 @@ void taskPrintf(void *pvParameters)
 {
     (void)(pvParameters);
 
-    while (1) 
+    while (1)
     {
         if (rx_flag == 1)
         {

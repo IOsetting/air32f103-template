@@ -8,6 +8,23 @@
 #include <unistd.h>
 #include <errno.h>
 
+const char hexes[] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
+
+void USART_Print_Hex(USART_TypeDef* USARTx, uint16_t ch)
+{
+    USARTx->DR = hexes[ch >> 8 & 0x0F];
+    while((USARTx->SR & USART_FLAG_TC) == (uint16_t)RESET);
+    USARTx->DR = hexes[ch >> 4 & 0x0F];
+    while((USARTx->SR & USART_FLAG_TC) == (uint16_t)RESET);
+    USARTx->DR = hexes[ch & 0x0F];
+    while((USARTx->SR & USART_FLAG_TC) == (uint16_t)RESET);
+}
+
+void USART_Print(USART_TypeDef* USARTx, uint16_t ch)
+{
+    USARTx->DR = ((uint16_t)ch & (uint16_t)0x01FF);
+    while((USARTx->SR & USART_FLAG_TC) == (uint16_t)RESET);
+}
 
 #if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
     #define GETCHAR_PROTOTYPE int fgetc(FILE * f)
@@ -20,14 +37,14 @@
 PUTCHAR_PROTOTYPE
 {
 #if (DEBUG == DEBUG_UART1)
-    USART_SendData(USART1, (uint8_t)ch);
-    while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET);
+    USART1->DR = ((uint16_t)ch & (uint16_t)0x01FF);
+    while((USART1->SR & USART_FLAG_TC) == (uint16_t)RESET);
 #elif (DEBUG == DEBUG_UART2)
-    USART_SendData(USART2, (uint8_t)ch);
-    while (USART_GetFlagStatus(USART2, USART_FLAG_TC) == RESET);
+    USART2->DR = ((uint16_t)ch & (uint16_t)0x01FF);
+    while((USART2->SR & USART_FLAG_TC) == (uint16_t)RESET);
 #elif (DEBUG == DEBUG_UART3)
-    USART_SendData(USART3, (uint8_t)ch);
-    while (USART_GetFlagStatus(USART3, USART_FLAG_TC) == RESET);
+    USART3->DR = ((uint16_t)ch & (uint16_t)0x01FF);
+    while((USART3->SR & USART_FLAG_TC) == (uint16_t)RESET);
 #endif
     return ch;
 }

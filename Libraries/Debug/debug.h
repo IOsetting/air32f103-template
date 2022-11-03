@@ -10,6 +10,7 @@
 #include "air32f10x_rcc.h"
 #include "air32f10x_gpio.h"
 #include "air32f10x_usart.h"
+#include "misc.h"
 #include "stdio.h"
 
 /* UART Printf Definition */
@@ -53,6 +54,8 @@
 
 
 void USART_Printf_Init(u32 baudrate);
+void USART_Print_Hex(USART_TypeDef* USARTx, uint16_t ch);
+void USART_Print(USART_TypeDef* USARTx, uint16_t ch);
 
 void Delay_Init(void);
 void Delay_Ms(uint16_t nms);
