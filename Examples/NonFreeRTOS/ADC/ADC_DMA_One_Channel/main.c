@@ -19,7 +19,7 @@ void ADC_Function_Init(void)
     GPIO_Init(GPIOA, &GPIO_InitStructure);
     // Reset ADC1
     ADC_DeInit(ADC1);
-    // Independent mod, continuous, 
+    // Independent mode, continuous
     ADC_InitStructure.ADC_Mode = ADC_Mode_Independent;
     ADC_InitStructure.ADC_ScanConvMode = DISABLE;
     ADC_InitStructure.ADC_ContinuousConvMode = ENABLE;

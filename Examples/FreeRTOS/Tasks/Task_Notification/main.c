@@ -73,7 +73,7 @@ void TIM3_IRQHandler(void)
 
 void taskUART(void *pvParameters)
 {
-    const TickType_t xBlockTime = 500;
+    const TickType_t xBlockTime = pdMS_TO_TICKS(500);
     uint32_t ulNotifiedValue;
 
     (void)(pvParameters);
@@ -102,12 +102,17 @@ int main(void)
     printf("SystemClk:%ld\r\n", SystemCoreClock);
     RCC_GetClocksFreq(&clocks);
 
+    taskENTER_CRITICAL();
+
     xReturned = xTaskCreate(taskUART, "Task", configMINIMAL_STACK_SIZE, NULL, 2, &taskUART_handler); 
     if (xReturned != pdPASS)
     {
         printf("FreeRTOS failed to create task\r\n");
         while (1);
     }
+
+    taskEXIT_CRITICAL();
+
     // Start timer after xTaskCreate to avoid null task handler
     TIM_Configuration();
 

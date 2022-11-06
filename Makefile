@@ -6,7 +6,7 @@ BUILD_DIR 		= Build
 
 ##### Options #####
 
-# Enable printf %f fload support, y:yes, n:no
+# Enable printf float %f support, y:yes, n:no
 ENABLE_PRINTF_FLOAT	?= y
 # Build with FreeRTOS, y:yes, n:no
 USE_FREERTOS	?= n
