@@ -28,20 +28,22 @@ OBJS += $(ASOURCES:$(TOP)/%.s=$(BDIR)/%.o)
 # d files for detecting h file changes
 DEPS=$(CSOURCES:$(TOP)/%.c=$(BDIR)/%.d)
 
-# Global compile flags
-CFLAGS		= -O2 -g -Wall -W
-ASFLAGS		= -g -Wa,--warn
-
 # Arch and target specified flags
-OPT			?= -Os
-CSTD		?= -std=c99
 ARCH_FLAGS	:= -mthumb -mcpu=cortex-m3
+# Debug options, -gdwarf-2 for debug, -g0 for release 
+# https://gcc.gnu.org/onlinedocs/gcc-12.2.0/gcc/Debugging-Options.html
+#  -g: system’s native format, -g0:off, -g/g1,-g2,-g3 -> more verbosely
+#  -ggdb: for gdb, -ggdb0:off, -ggdb/ggdb1,-ggdb2,-ggdb3 -> more verbosely
+#  -gdwarf: in DWARF format, -gdwarf-2,-gdwarf-3,-gdwarf-4,-gdwarf-5
+DEBUG_FLAGS ?= -gdwarf-2
 
 # c flags
-TGT_CFLAGS 	+= $(OPT) $(CSTD) $(ARCH_FLAGS) $(addprefix -D, $(LIB_FLAGS)) -ggdb3
+OPT			?= -Os
+CSTD		?= -std=c99
+TGT_CFLAGS 	+= $(ARCH_FLAGS) $(DEBUG_FLAGS) $(OPT) $(CSTD) $(addprefix -D, $(LIB_FLAGS)) -Wall
 
 # asm flags
-TGT_ASFLAGS += $(ARCH_FLAGS)
+TGT_ASFLAGS += $(ARCH_FLAGS) $(DEBUG_FLAGS) $(OPT) -Wa,--warn
 
 # ld flags
 TGT_LDFLAGS += $(ARCH_FLAGS) -specs=nano.specs -specs=nosys.specs -static -lc -lm \
@@ -76,12 +78,12 @@ echo:
 $(BDIR)/%.o: %.c
 	@printf "  CC\t$<\n"
 	@mkdir -p $(dir $@)
-	$(Q)$(CC) $(TGT_CFLAGS) $(CFLAGS) $(TGT_INCFLAGS) -o $@ -c $< -MD -MF $(BDIR)/$*.d -MP
+	$(Q)$(CC) $(TGT_CFLAGS) $(TGT_INCFLAGS) -o $@ -c $< -MD -MF $(BDIR)/$*.d -MP
 
 $(BDIR)/%.o: %.s
 	@printf "  AS\t$<\n"
 	@mkdir -p $(dir $@)
-	$(Q)$(CC) $(TGT_ASFLAGS) $(ASFLAGS) -o $@ -c $<
+	$(Q)$(CC) $(TGT_ASFLAGS) -o $@ -c $<
 
 $(BDIR)/$(PROJECT).elf: $(OBJS) $(TOP)/$(LDSCRIPT)
 	@printf "  LD\t$@\n"
