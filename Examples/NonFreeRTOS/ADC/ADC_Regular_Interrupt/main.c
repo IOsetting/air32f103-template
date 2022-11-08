@@ -1,14 +1,5 @@
 /*
- * @Note Regular conversion, ch1(PA1), software start and wait till end of conversion
- *
- * Regarding multiple channel scan: Unlike F4 series, ADC in F1 series can generate 
- * only one (single) interrupt at the end of the whole scanning sequence. That's 
- * why DMA is a must when using scanning mode.
- * If you want to configure ADC for interrupt based scanning, you have to do this manually:
- * 1. Configure ADC for single conversion, triggered manually or by interrupts.
- * 2. Select the ADC channel
- * 3. In interrupt service routine (ISR), collect the result from ADC->DR.
- * 4. In ISR, Repeat step 2 to configure ADC for the next channel.
+ * @Note Regular conversion, ch1(PA1), start by software and read by interrupt handler
 */
 #include <air32f10x_adc.h>
 #include "debug.h"
@@ -29,6 +20,17 @@ void GPIO_Configuration(void)
     GPIO_Init(GPIOA, &GPIO_InitStructure);
 }
 
+void NVIC_Configuration(void)
+{
+    NVIC_InitTypeDef NVIC_InitStructure;
+
+    NVIC_InitStructure.NVIC_IRQChannel = ADC1_2_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
+}
+
 void ADC_Function_Init(void)
 {
     ADC_InitTypeDef ADC_InitStructure;
@@ -42,6 +44,9 @@ void ADC_Function_Init(void)
     ADC_InitStructure.ADC_NbrOfChannel = 1;
     ADC_Init(ADC1, &ADC_InitStructure);
 
+    // Enable 'End Of Conversion' interrupt
+    ADC_ITConfig(ADC1, ADC_IT_EOC, ENABLE);
+
     ADC_RegularChannelConfig(ADC1, ADC_Channel_1, 1, ADC_SampleTime_239Cycles5);
     ADC_Cmd(ADC1, ENABLE);
 
@@ -51,25 +56,31 @@ void ADC_Function_Init(void)
     while (ADC_GetCalibrationStatus(ADC1));
 }
 
-int main(void)
+void ADC1_2_IRQHandler(void)
 {
     uint16_t adc_val;
+    if (ADC_GetITStatus(ADC1, ADC_IT_EOC) == SET)
+    {
+        ADC_ClearITPendingBit(ADC1, ADC_IT_EOC);
+        adc_val = ADC_GetConversionValue(ADC1);
+        printf("val:%04d\r\n", adc_val);
+    }
+}
 
+int main(void)
+{
     Delay_Init();
     USART_Printf_Init(115200);
     printf("SystemClk:%ld\r\n", SystemCoreClock);
 
     RCC_Configuration();
     GPIO_Configuration();
+    NVIC_Configuration();
     ADC_Function_Init();
 
     while (1)
     {
         ADC_SoftwareStartConvCmd(ADC1, ENABLE);
-        while (!ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC));
-        // Get last conversion value
-        adc_val = ADC_GetConversionValue(ADC1);
-        printf("val:%04d\r\n", adc_val);
         Delay_Ms(500);
     }
 }

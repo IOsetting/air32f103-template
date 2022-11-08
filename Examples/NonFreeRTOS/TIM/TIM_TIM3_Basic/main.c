@@ -1,3 +1,6 @@
+/**
+ * Example of TIM3 Interrupt
+*/
 #include <inttypes.h>
 #include <air32f10x.h>
 #include <air32f10x_gpio.h>
@@ -13,15 +16,13 @@ void TIM_Configuration(void);
 int main(void)
 {
     USART_Printf_Init(115200);
-    printf("Timer Test\n");
-    printf("SystemClk:%"PRIu32"\n", SystemCoreClock);
     RCC_GetClocksFreq(&clocks);
-    printf("SYSCLK: %"PRIu32"Khz, HCLK: %"PRIu32"Khz, PCLK1: %"PRIu32"Khz, PCLK2: %"PRIu32"Khz, ADCCLK: %"PRIu32"Khz\n", \
-    clocks.SYSCLK_Frequency/1000, \
-    clocks.HCLK_Frequency/1000, \
-    clocks.PCLK1_Frequency/1000, \
-    clocks.PCLK2_Frequency/1000, \
-    clocks.ADCCLK_Frequency/1000);
+
+    printf(
+        "SYSCLK: %3.1fMHz, HCLK: %3.1fMHz, PCLK1: %3.1fMHz, PCLK2: %3.1fMHz, ADCCLK: %3.1fMHz\n", 
+    (float)clocks.SYSCLK_Frequency/1000000, (float)clocks.HCLK_Frequency/1000000, 
+    (float)clocks.PCLK1_Frequency/1000000, (float)clocks.PCLK2_Frequency/1000000,
+    (float)clocks.ADCCLK_Frequency/1000000);
 
     TIM_Configuration();
 
@@ -35,21 +36,20 @@ void TIM_Configuration(void)
 
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
     // Set counter limit to 10000
-    TIM_TimeBaseStructure.TIM_Period = 9999;
+    TIM_TimeBaseStructure.TIM_Period = 10000 - 1;
     /**
      * Clock source of TIM2,3,4,5,6,7: if(APB1 prescaler =1) then PCLK1 x1, else PCLK1 x2
-     * Make TIM3 clock to 1KHz
      * */
     if (clocks.HCLK_Frequency == clocks.PCLK1_Frequency)
     {
-        // clock source is PCLK1. 
+        // clock source is PCLK1 x1.
         // Note: TIM_Prescaler is 16bit, [0, 65535], given PCLK1 is 36MHz, divider should > 550
         TIM_TimeBaseStructure.TIM_Prescaler = clocks.PCLK1_Frequency / 10000 - 1;
     }
     else
     {
-        // clock source is PCLK1 x2, so prescaler should be doubled
-        TIM_TimeBaseStructure.TIM_Prescaler = clocks.PCLK1_Frequency / 5000 - 1;
+        // clock source is PCLK1 x2
+        TIM_TimeBaseStructure.TIM_Prescaler = clocks.PCLK1_Frequency * 2 / 10000 - 1;
     }
     TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1; // TDTS = Tck_tim
     TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
