@@ -23,3 +23,10 @@
 | TIM6/DAC_Channel1 |                  - |                           - | TIM6_UP/DAC_Channel1 |                    - |         - |
 |              TIM7 |                  - |                           - |                    - | TIM7_UP/DAC_Channel2 |         - |
 |              TIM8 |   TIM8_CH3 TIM8_UP | TIM8_CH4 TIM8_TRIG TIM8_COM |             TIM8_CH1 |                    - |  TIM8_CH2 |
+
+# Problems
+
+## 8-bit ADC DMA workaround doesn't work
+
+On STM32 you can set ADC result left-aligned and use '(uint32_t)&ADC1->DR + 1' to set the 8-bit array in DMA, but this doesn't work on AIR32, AIR32 doesn't support unaligned 32-bit memory access.
+
