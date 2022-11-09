@@ -166,31 +166,31 @@ typedef enum
 
 #define SysFreq_Set            (*((void (*)(uint32_t, FlashClkDiv , uint8_t, uint8_t))(*(uint32_t *)0x1FFFD00C)))
 
-__attribute__((optimize("-O0"))) uint32_t AIR_RCC_PLLConfig(uint32_t RCC_PLLSource, uint32_t RCC_PLLMul, uint8_t Latency)
+uint32_t AIR_RCC_PLLConfig(uint32_t RCC_PLLSource, uint32_t RCC_PLLMul, uint8_t Latency)
 {
     uint32_t sramsize = 0;
-    /* Check the parameters */
+
     assert_param(IS_RCC_PLL_SOURCE(RCC_PLLSource));
     assert_param(IS_RCC_PLL_MUL(RCC_PLLMul));
 
-    *(uint32_t *)(0x400210F0) = BIT(0);     // Enable sys_cfg gate control
-    *(uint32_t *)(0x40016C00) = 0xa7d93a86; // Unlock from level 1 to 3
-    *(uint32_t *)(0x40016C00) = 0xab12dfcd;
-    *(uint32_t *)(0x40016C00) = 0xcded3526;
-    sramsize = *(uint32_t *)(0x40016C18);
-    *(uint32_t *)(0x40016C18) = 0x200183FF; // Set sram size, enable BOOT for sram
-    *(uint32_t *)(0x4002228C) = 0xa5a5a5a5; // Unlock QSPI
+    RCC->RCC_SYSCFG_CONFIG = 1;           // Unlock sys_cfg gate control
+    SYSCFG->SYSCFG_LOCK = 0xa7d93a86;     // Unlock from level 1 to 3
+    SYSCFG->SYSCFG_LOCK = 0xab12dfcd;
+    SYSCFG->SYSCFG_LOCK = 0xcded3526;
+    sramsize = SYSCFG->SYSCFG_RSVD0[5];
+    SYSCFG->SYSCFG_RSVD0[5] = 0x200183FF; // Set sram size, enable BOOT for sram
+    *(__IO uint32_t *)(FLASH_R_BASE + 0x28C) = 0xa5a5a5a5; // Unlock QSPI
 
-    SysFreq_Set(RCC_PLLMul,Latency ,0,1);
+    SysFreq_Set(RCC_PLLMul, Latency, 0, 1);
     RCC->CFGR = (RCC->CFGR & ~0x00030000) | RCC_PLLSource;
 
     // Restore previous config
-    *(uint32_t *)(0x40016C18) = sramsize;
-    *(uint32_t *)(0x400210F0) = 0;          // Enable sys_cfg gate control
-    *(uint32_t *)(0x40016C00) = ~0xa7d93a86;// Lock from level 1 to 3
-    *(uint32_t *)(0x40016C00) = ~0xab12dfcd;
-    *(uint32_t *)(0x40016C00) = ~0xcded3526;
-    *(uint32_t *)(0x4002228C) = ~0xa5a5a5a5;// Lock QSPI
+    SYSCFG->SYSCFG_RSVD0[5] = sramsize;
+    RCC->RCC_SYSCFG_CONFIG = 0;           // Lock sys_cfg gate control
+    SYSCFG->SYSCFG_LOCK = ~0xa7d93a86;    // Lock from level 1 to 3
+    SYSCFG->SYSCFG_LOCK = ~0xab12dfcd;
+    SYSCFG->SYSCFG_LOCK = ~0xcded3526;
+    *(__IO uint32_t *)(FLASH_R_BASE + 0x28C) = ~0xa5a5a5a5;// Lock QSPI
 
     return 1;
 }
