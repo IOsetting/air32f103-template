@@ -11,5 +11,9 @@
 
 uint32_t AIR_RCC_PLLConfig(uint32_t RCC_PLLSource, uint32_t RCC_PLLMul, uint8_t Latency);
 
+#ifdef __cplusplus
+}
+#endif
+
 #endif
 
