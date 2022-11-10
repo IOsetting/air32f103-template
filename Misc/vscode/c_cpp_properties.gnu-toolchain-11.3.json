@@ -4,6 +4,7 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
+                "${workspaceFolder}/Libraries/FreeRTOS/portable/GCC/ARM_CM3/",
                 "/opt/gcc-arm/arm-gnu-toolchain-11.3.rel1-x86_64-arm-none-eabi/arm-none-eabi/include/",
                 "/opt/gcc-arm/arm-gnu-toolchain-11.3.rel1-x86_64-arm-none-eabi/lib/gcc/arm-none-eabi/11.3.1/include/"
             ],

@@ -4,16 +4,10 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
+                "${workspaceFolder}/Libraries/FreeRTOS/portable/GCC/ARM_CM3/",
                 "/opt/gcc-arm/arm-gnu-toolchain-12.2.mpacbti-bet1-x86_64-arm-none-eabi/arm-none-eabi/include/",
                 "/opt/gcc-arm/arm-gnu-toolchain-12.2.mpacbti-bet1-x86_64-arm-none-eabi/lib/gcc/arm-none-eabi/12.2.0/include"
             ],
-            "browse": {
-                "limitSymbolsToIncludedHeaders": true,
-                "path": [
-                    "/opt/gcc-arm/arm-gnu-toolchain-12.2.mpacbti-bet1-x86_64-arm-none-eabi/include/",
-                    ""
-                ]
-            },
             "defines": [
                 
             ],
