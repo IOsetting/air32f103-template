@@ -21,7 +21,6 @@ static EventGroupHandle_t eventGroupHandle = NULL;
 void taskUART(void *pvParameters)
 {
     EventBits_t bits;
-    const TickType_t xWaitTime = pdMS_TO_TICKS(2000);
     (void)(pvParameters);
 
     while (1)
@@ -30,8 +29,8 @@ void taskUART(void *pvParameters)
             eventGroupHandle,           // The event group in which the bits are set
             EVENT_KEY1 | EVENT_KEY2,    // A bitwise value that indicates the bits inside the event group
             pdTRUE,                     // Clear event bits in the event group before xEventGroupWaitBits() returns
-            pdFALSE,                    // Wait for any bits or timeout
-            xWaitTime);                 // Use portMAX_DELAY if wait forever
+            pdTRUE,                     // Wait for any bits or timeout
+            portMAX_DELAY);             // Wait forever, or set timeout using pdMS_TO_TICKS(ms)
 
         // Test the return value to know which bits were set
         if ((bits & (EVENT_KEY1 | EVENT_KEY2)) == (EVENT_KEY1 | EVENT_KEY2))
@@ -64,6 +63,8 @@ int main(void)
     RCC_ClkConfiguration();
     USART_Printf_Init(115200);
     printf("SystemClk:%ld\r\n", SystemCoreClock);
+
+    NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
 
     eventGroupHandle = xEventGroupCreate();
     configASSERT(eventGroupHandle);
@@ -123,8 +124,8 @@ void GPIO_Configuration(void)
     GPIO_EXTILineConfig(GPIO_PortSourceGPIOA, GPIO_PinSource1);
 
     NVIC_InitStructure.NVIC_IRQChannel = EXTI1_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 6;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
 
