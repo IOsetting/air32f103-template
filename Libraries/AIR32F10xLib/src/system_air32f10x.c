@@ -190,8 +190,15 @@ void SystemCoreClockUpdate (void)
       /* Get PLL clock source and multiplication factor ----------------------*/
       pllmull = RCC->CFGR & RCC_CFGR_PLLMULL;
       pllsource = RCC->CFGR & RCC_CFGR_PLLSRC;
-          
-      pllmull = ( pllmull >> 18) + 2;
+
+      if (RCC->CFGR >> 28 & 0x01)
+      {
+        pllmull = (0x01 << 4 | (pllmull >> 18)) + 1;
+      }
+      else
+      {
+        pllmull = (pllmull >> 18) + 2;
+      }
       
       if (pllsource == 0x00)
       {

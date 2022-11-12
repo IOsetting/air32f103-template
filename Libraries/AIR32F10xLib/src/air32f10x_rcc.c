@@ -607,7 +607,6 @@ void RCC_RTCCLKCmd(FunctionalState NewState)
 void RCC_GetClocksFreq(RCC_ClocksTypeDef* RCC_Clocks)
 {
   uint32_t tmp = 0, pllmull = 0, pllsource = 0, presc = 0;
-  uint32_t i;
 
   /* Get SYSCLK source -------------------------------------------------------*/
   tmp = RCC->CFGR & CFGR_SWS_Mask;
@@ -625,17 +624,15 @@ void RCC_GetClocksFreq(RCC_ClocksTypeDef* RCC_Clocks)
       /* Get PLL clock source and multiplication factor ----------------------*/
       pllmull = RCC->CFGR & CFGR_PLLMull_Mask;
       pllsource = RCC->CFGR & CFGR_PLLSRC_Mask;
-	
-	  if (RCC->CFGR >> 28 & 0x01)
-	  {
-		i = 0x01;
-		pllmull = (i << 4 | ( pllmull >> 18)) + 1;
-	  }
-	  else
-	  {
-		pllmull = ( pllmull >> 18) + 2 ;
-	  }
-		  
+
+      if (RCC->CFGR >> 28 & 0x01)
+      {
+        pllmull = (0x01 << 4 | (pllmull >> 18)) + 1;
+      }
+      else
+      {
+        pllmull = (pllmull >> 18) + 2;
+      }
 
       if (pllsource == 0x00)
       {/* HSI oscillator clock divided by 2 selected as PLL clock entry */
