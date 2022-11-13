@@ -10,7 +10,7 @@ BUILD_DIR 		= Build
 ENABLE_PRINTF_FLOAT	?= y
 # Build with FreeRTOS, y:yes, n:no
 USE_FREERTOS	?= n
-# Programmer, jlink or stlink
+# Programmer, jlink, stlink, cmsis-dap
 FLASH_PROGRM    ?= stlink
 
 
@@ -24,6 +24,8 @@ ST_FLASH		?= st-flash
 # path to JLinkExe (or should be specified in PATH)
 JLINKEXE		?= /opt/SEGGER/JLink/JLinkExe
 JLINK_DEVICE	?= STM32F103CB
+# path to OpenOCD (or should be specified in PATH)
+OPENOCD			?= openocd
 
 
 ##### Paths ############

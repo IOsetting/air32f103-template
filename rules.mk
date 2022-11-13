@@ -35,10 +35,10 @@ ARCH_FLAGS	:= -mthumb -mcpu=cortex-m3
 #  -g: system’s native format, -g0:off, -g/g1,-g2,-g3 -> more verbosely
 #  -ggdb: for gdb, -ggdb0:off, -ggdb/ggdb1,-ggdb2,-ggdb3 -> more verbosely
 #  -gdwarf: in DWARF format, -gdwarf-2,-gdwarf-3,-gdwarf-4,-gdwarf-5
-DEBUG_FLAGS ?= -gdwarf-2
+DEBUG_FLAGS ?= -g0
 
 # c flags
-OPT			?= -Os
+OPT			?= -O3
 CSTD		?= -std=c99
 TGT_CFLAGS 	+= $(ARCH_FLAGS) $(DEBUG_FLAGS) $(OPT) $(CSTD) $(addprefix -D, $(LIB_FLAGS)) -Wall
 
@@ -61,7 +61,7 @@ TGT_INCFLAGS := $(addprefix -I $(TOP)/, $(INCLUDES))
 
 .PHONY: all clean flash echo
 
-all: $(BDIR)/$(PROJECT).elf $(BDIR)/$(PROJECT).bin
+all: $(BDIR)/$(PROJECT).elf $(BDIR)/$(PROJECT).bin $(BDIR)/$(PROJECT).hex
 
 # for debug
 echo:
@@ -93,6 +93,10 @@ $(BDIR)/$(PROJECT).elf: $(OBJS) $(TOP)/$(LDSCRIPT)
 	@printf "  OBJCP\t$@\n"
 	$(Q)$(OBJCOPY) -O binary  $< $@
 
+%.hex: %.elf
+	@printf "  OBJCP\t$@\n"
+	$(Q)$(OBJCOPY) -O ihex  $< $@
+
 clean:
 	rm -rf $(BDIR)/*
 
@@ -101,6 +105,12 @@ ifeq ($(FLASH_PROGRM),stlink)
 	$(ST_FLASH) --reset write $(BDIR)/$(PROJECT).bin 0x8000000
 else ifeq ($(FLASH_PROGRM),jlink)
 	$(JLINKEXE) -device $(JLINK_DEVICE) -if swd -speed 4000 -CommanderScript $(TOP)/Misc/flash.jlink
+else ifeq ($(FLASH_PROGRM),cmsis-dap)
+	$(OPENOCD) -f interface/cmsis-dap.cfg -f target/stm32f1x.cfg \
+		-c "adapter_khz 1000" \
+		-c init -c "reset init" \
+		-c "program $(BDIR)/$(PROJECT).hex verify reset" \
+		-c exit
 else
     @echo "FLASH_PROGRM is invalid\n"
 endif
