@@ -15,6 +15,8 @@
 //#define SYSCLK_FREQ_48MHz  48000000
 //#define SYSCLK_FREQ_56MHz  56000000
 #define SYSCLK_FREQ_72MHz  72000000
+//#define SYSCLK_FREQ_216MHz  216000000
+
 
 /*!< Uncomment the following line if you need to relocate your vector Table in
      Internal SRAM. */ 
@@ -54,6 +56,8 @@
   uint32_t SystemCoreClock         = SYSCLK_FREQ_56MHz;        /*!< System Clock Frequency (Core Clock) */
 #elif defined SYSCLK_FREQ_72MHz
   uint32_t SystemCoreClock         = SYSCLK_FREQ_72MHz;        /*!< System Clock Frequency (Core Clock) */
+#elif defined SYSCLK_FREQ_216MHz
+  uint32_t SystemCoreClock         = SYSCLK_FREQ_216MHz;       /*!< System Clock Frequency (Core Clock) */
 #else /*!< HSI Selected as System Clock source */
   uint32_t SystemCoreClock         = HSI_VALUE;        /*!< System Clock Frequency (Core Clock) */
 #endif
@@ -81,6 +85,8 @@ static void SetSysClock(void);
   static void SetSysClockTo56(void);  
 #elif defined SYSCLK_FREQ_72MHz
   static void SetSysClockTo72(void);
+#elif defined SYSCLK_FREQ_216MHz
+  static void SetSysClockTo216(void);
 #endif
 
 #ifdef DATA_IN_ExtSRAM
@@ -251,6 +257,8 @@ static void SetSysClock(void)
   SetSysClockTo56();  
 #elif defined SYSCLK_FREQ_72MHz
   SetSysClockTo72();
+#elif defined SYSCLK_FREQ_216MHz
+  SetSysClockTo216();
 #endif
  
  /* If none of the define above is enabled, the HSI is used as System clock
@@ -700,6 +708,105 @@ static void SetSysClockTo72(void)
     while ((RCC->CFGR & (uint32_t)RCC_CFGR_SWS) != (uint32_t)0x08)
     {
     }
+  }
+  else
+  { /* If HSE fails to start-up, the application will have wrong clock 
+         configuration. User can add here some code to deal with this error */
+  }
+}
+#elif defined SYSCLK_FREQ_216MHz
+typedef enum 
+{
+    FLASH_Div_0 = 0,
+    FLASH_Div_2 = 1,
+    FLASH_Div_4 = 2,
+    FLASH_Div_6 = 3,
+    FLASH_Div_8 = 4,
+    FLASH_Div_16 = 5,
+}FlashClkDiv;
+
+#define SysFreq_Set            (*((void (*)(uint32_t, FlashClkDiv , uint8_t, uint8_t))(*(uint32_t *)0x1FFFD00C)))
+
+static void SetSysClockTo216(void)
+{
+  __IO uint32_t StartUpCounter = 0, HSEStatus = 0;
+  uint32_t sramsize = 0;
+
+  /* SYSCLK, HCLK, PCLK2 and PCLK1 configuration ---------------------------*/    
+  /* Enable HSE */
+  RCC->CR |= ((uint32_t)RCC_CR_HSEON);
+ 
+  /* Wait till HSE is ready and if Time out is reached exit */
+  do
+  {
+    HSEStatus = RCC->CR & RCC_CR_HSERDY;
+    StartUpCounter++;  
+  } while((HSEStatus == 0) && (StartUpCounter != HSE_STARTUP_TIMEOUT));
+
+  if ((RCC->CR & RCC_CR_HSERDY) != RESET)
+  {
+    HSEStatus = (uint32_t)0x01;
+  }
+  else
+  {
+    HSEStatus = (uint32_t)0x00;
+  }
+
+  if (HSEStatus == (uint32_t)0x01)
+  {
+    /* Enable Prefetch Buffer */
+    FLASH->ACR |= FLASH_ACR_PRFTBE;
+
+    /* Flash 2 wait state */
+    FLASH->ACR &= (uint32_t)((uint32_t)~FLASH_ACR_LATENCY);
+    FLASH->ACR |= (uint32_t)FLASH_ACR_LATENCY_2;    
+
+    /* HCLK = SYSCLK */
+    RCC->CFGR |= (uint32_t)RCC_CFGR_HPRE_DIV1;
+      
+    /* PCLK2 = HCLK */
+    RCC->CFGR |= (uint32_t)RCC_CFGR_PPRE2_DIV1;
+    
+    /* PCLK1 = HCLK */
+    RCC->CFGR |= (uint32_t)RCC_CFGR_PPRE1_DIV2;
+
+    /*
+     * Set PLL, System clock = 8MHz * PLLMul
+     */
+    RCC->RCC_SYSCFG_CONFIG = 1;           // Unlock sys_cfg gate control
+    SYSCFG->SYSCFG_LOCK = 0xa7d93a86;     // Unlock from level 1 to 3
+    SYSCFG->SYSCFG_LOCK = 0xab12dfcd;
+    SYSCFG->SYSCFG_LOCK = 0xcded3526;
+    sramsize = SYSCFG->SYSCFG_RSVD0[5];
+    SYSCFG->SYSCFG_RSVD0[5] = 0x200183FF; // Set sram size, enable BOOT for sram
+    *(__IO uint32_t *)(FLASH_R_BASE + 0x28C) = 0xa5a5a5a5; // Unlock QSPI
+
+    SysFreq_Set(RCC_CFGR_PLLMULL27, 1, 0, 1);
+    /*  PLL configuration: PLLCLK = HSE * 27 = 216 MHz */
+    RCC->CFGR &= (uint32_t)((uint32_t)~(RCC_CFGR_PLLSRC | RCC_CFGR_PLLXTPRE |
+                                        RCC_CFGR_PLLMULL));
+    RCC->CFGR |= RCC_CFGR_PLLSRC_HSE | RCC_CFGR_PLLMULL27;
+
+    // Restore previous config
+    SYSCFG->SYSCFG_RSVD0[5] = sramsize;
+    RCC->RCC_SYSCFG_CONFIG = 0;           // Lock sys_cfg gate control
+    SYSCFG->SYSCFG_LOCK = ~0xa7d93a86;    // Lock from level 1 to 3
+    SYSCFG->SYSCFG_LOCK = ~0xab12dfcd;
+    SYSCFG->SYSCFG_LOCK = ~0xcded3526;
+    *(__IO uint32_t *)(FLASH_R_BASE + 0x28C) = ~0xa5a5a5a5;// Lock QSPI
+
+    /* Enable PLL */
+    RCC->CR |= RCC_CR_PLLON;
+
+    /* Wait till PLL is ready */
+    while((RCC->CR & RCC_CR_PLLRDY) == 0);
+    
+    /* Select PLL as system clock source */
+    RCC->CFGR &= (uint32_t)((uint32_t)~(RCC_CFGR_SW));
+    RCC->CFGR |= (uint32_t)RCC_CFGR_SW_PLL;    
+
+    /* Wait till PLL is used as system clock source */
+    while ((RCC->CFGR & (uint32_t)RCC_CFGR_SWS) != (uint32_t)0x08);
   }
   else
   { /* If HSE fails to start-up, the application will have wrong clock 
