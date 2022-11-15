@@ -6,8 +6,9 @@
 #include "air32f10x_tim.h"
 #include "misc.h"
 
-#define RCC_PLL 32
 #define RCC_PLL_NUM RCC_PLLMul_32 
+
+RCC_ClocksTypeDef clocks;
 
 void RCC_ClkConfiguration(void)
 {
@@ -34,13 +35,14 @@ void RCC_ClkConfiguration(void)
 
 void TIM2_Init(void)
 {
+    uint16_t pll = (uint16_t)(clocks.SYSCLK_Frequency / (uint32_t)8000000);
     // Set TIM2 interrupt on each millisecond, for coremark ticks
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
     TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStruct;
     TIM_TimeBaseInitStruct.TIM_ClockDivision = TIM_CKD_DIV1;
     TIM_TimeBaseInitStruct.TIM_CounterMode = TIM_CounterMode_Up;
     TIM_TimeBaseInitStruct.TIM_Period = 999;
-    TIM_TimeBaseInitStruct.TIM_Prescaler = 8 * RCC_PLL - 1;
+    TIM_TimeBaseInitStruct.TIM_Prescaler = 8 * pll - 1;
     TIM_TimeBaseInit(TIM2, &TIM_TimeBaseInitStruct);
 
     TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
@@ -55,8 +57,6 @@ void TIM2_Init(void)
 
 void main_original(void)
 {
-    RCC_ClocksTypeDef clocks;
-
     RCC_ClkConfiguration(); // Set PLL clock
     Delay_Init();
     USART_Printf_Init(115200);
