@@ -1,5 +1,5 @@
 /**
- * Example of Queue working with notification
+ * Example of DMA double buffer mode with task notification
  */
 #include <stdlib.h>
 #include <air32f10x.h>
@@ -15,6 +15,7 @@
 #include "task.h"
 #include "queue.h"
 #include "ring_buffer.h"
+#include "avg.h"
 
 #define BUFF_SIZE 8000
 
@@ -26,7 +27,7 @@ typedef struct Message {
     int16_t data;
 } Message;
 
-volatile uint8_t rx_flag = 0;
+volatile uint8_t half_flag = 0;
 uint8_t *data_ptr;
 uint16_t dma_buf[BUFF_SIZE];
 
@@ -124,8 +125,16 @@ void taskDmaComplete(void *pvParameters)
         ulNotifiedValue = ulTaskNotifyTake(pdFALSE, portMAX_DELAY);
         if( ulNotifiedValue > 0 )
         {
-            strcpy(resp.msg, "DMA interrupt");
-            resp.data = dma_buf[BUFF_SIZE - 1];
+            if (half_flag == 1)
+            {
+                strcpy(resp.msg, "DMA HC interrupt");
+                resp.data = avg16(dma_buf, BUFF_SIZE / 2);
+            }
+            else
+            {
+                strcpy(resp.msg, "DMA TC interrupt");
+                resp.data = avg16(dma_buf + (BUFF_SIZE / 2), BUFF_SIZE / 2);
+            }
             xQueueSend(message_queue, (void *)&resp, 10);
         }
     }
@@ -289,6 +298,7 @@ void DMA_Tx_Init(DMA_Channel_TypeDef *DMA_CHx, uint32_t ppadr, uint32_t memadr, 
     DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
     DMA_Init(DMA_CHx, &DMA_InitStructure);
     // Enable 'Transfer complete' interrupt
+    DMA_ITConfig(DMA1_Channel1, DMA_IT_HT, ENABLE);
     DMA_ITConfig(DMA1_Channel1, DMA_IT_TC, ENABLE);
     // Enable DMA
     DMA_Cmd(DMA_CHx, ENABLE);
@@ -312,9 +322,17 @@ void DMA1_Channel1_IRQHandler(void)
     if (DMA_GetITStatus(DMA1_IT_TC1))
     {
         DMA_ClearITPendingBit(DMA1_IT_GL1);
-        //printf("%d %d\r\n", dma_buf[BUFF_SIZE - 2], dma_buf[BUFF_SIZE - 1]);
-        // Notify taskTimer3 to proceed
+        // Notify taskDmaComplete() to proceed the second half
+        half_flag = 0;
         vTaskNotifyGiveFromISR(taskDmaComplete_handler, &xHigherPriorityTaskWoken);
+        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
     }
-    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+    else if (DMA_GetITStatus(DMA1_IT_HT1))
+    {
+        DMA_ClearITPendingBit(DMA1_IT_GL1);
+        // Notify taskDmaComplete() to proceed the first half
+        half_flag = 1;
+        vTaskNotifyGiveFromISR(taskDmaComplete_handler, &xHigherPriorityTaskWoken);
+        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+    }
 }
