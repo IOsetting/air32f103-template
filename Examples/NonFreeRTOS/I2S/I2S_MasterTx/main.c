@@ -9,6 +9,8 @@
  *                               VIN  -> 3.3V
  *                               +    -> speaker
  *                               -    -> speaker
+ * 
+ * Change I2S standard according to your I2S device: LSB for PT8211, Phillips for MAX98357A
 */
 #include "air32f10x_spi.h"
 #include "air32f10x_dma.h"
@@ -17,7 +19,7 @@
 
 #define DATA_SIZE 27451
 
-uint32_t TxIdx;
+uint32_t idx;
 __IO uint8_t lr = 0;
 
 void IIS_Configuration(void)
@@ -45,6 +47,7 @@ void IIS_Configuration(void)
 
 	SPI_I2S_DeInit(SPI2);
 	I2S_InitStructure.I2S_Mode = I2S_Mode_MasterTx;
+    // PT8211:LSB,  MAX98357A:Phillips
 	I2S_InitStructure.I2S_Standard = I2S_Standard_Phillips;
 	I2S_InitStructure.I2S_DataFormat = I2S_DataFormat_16b;
 	I2S_InitStructure.I2S_AudioFreq = I2S_AudioFreq_8k;
@@ -52,7 +55,6 @@ void IIS_Configuration(void)
 	I2S_InitStructure.I2S_MCLKOutput = I2S_MCLKOutput_Disable;
 	I2S_Init(SPI2, &I2S_InitStructure);
 
-	SPI_I2S_ITConfig(SPI2, SPI_I2S_IT_TXE, ENABLE);
 	I2S_Cmd(SPI2, ENABLE);
 }
 
@@ -65,17 +67,17 @@ void SPI2_IRQHandler(void)
         if (lr == 0)
         {
             lr = 1;
-            SPI_I2S_SendData(SPI2, (uint16_t)voice_bulk[TxIdx] << 6);
+            SPI_I2S_SendData(SPI2, (uint16_t)voice_bulk[idx] << 6);
         }
         else
         {
             lr = 0;
-            SPI_I2S_SendData(SPI2, (uint16_t)voice_bulk[TxIdx++] << 6);
-            if (TxIdx == DATA_SIZE)
+            SPI_I2S_SendData(SPI2, (uint16_t)voice_bulk[idx++] << 6);
+            if (idx == DATA_SIZE)
             {
-                TxIdx = 0;
+                idx = 0;
                 // Disable the I2S1 TXE Interrupt to stop playing
-                SPI_I2S_ITConfig(SPI2, SPI_I2S_IT_TXE, DISABLE); // 关闭SPI2发送中断
+                SPI_I2S_ITConfig(SPI2, SPI_I2S_IT_TXE, DISABLE);
             }
         }
     }

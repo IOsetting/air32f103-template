@@ -1,5 +1,5 @@
 /*
- * Example of Audio Recording using DMA
+ * Example of Audio Recording Using ADPCM
  * 
  * Wiring:
  * 
@@ -19,31 +19,141 @@
  *   GND                        -> A/R
  *                                 GAIN -> float:60dB, gnd:50dB, 3.3v:40dB
  * 
- * 1. Adjust BUFF_SIZE according to MCU RAM size, Size 30000 is for 64K
+ * 1. Adjust BUFF_SIZE according to MCU RAM size, Size 62000 is for 64K
  * 2. Change AUDIO_FREQ for different sound quality
  * 3. Change I2S standard according to your I2S device: LSB for PT8211, Phillips for MAX98357A
  * 
 */
 #include <air32f10x_adc.h>
-#include <air32f10x_dma.h>
 #include <air32f10x_spi.h>
 #include <air32f10x_tim.h>
 #include "debug.h"
+#include "adpcm.h"
 
 #define AUDIO_FREQ 8000
-//#define AUDIO_FREQ 11000
+//#define AUDIO_FREQ 11025
 //#define AUDIO_FREQ 16000
 
-#define BUFF_SIZE 30000
+#define BUFF_SIZE 60000
 
-uint16_t dma_buf[BUFF_SIZE];
-uint32_t index;
-__IO uint8_t lr = 0;
+RCC_ClocksTypeDef clocks;
+uint8_t voice[BUFF_SIZE];
+__IO uint8_t finish = 0;
+
+void RCC_Configuration(void);
+void TIM_Configuration(void);
+void GPIO_Configuration(void);
+void IIS_Configuration(void);
+void ADC_Configuration(void);
+void NVIC_Configuration(void);
+
+void Audio_Encode(void)
+{
+    static uint32_t idx = 0;
+    static uint8_t msb = 0;
+    uint8_t val;
+
+    val = ADPCM_Encode((uint16_t)(ADC1->DR << 2)) & 0x0F;
+    if (msb == 0)
+    {
+        voice[idx] = val;
+        msb = 1;
+    }
+    else
+    {
+        voice[idx] |= (val << 4);
+        msb = 0;
+        idx++;
+        if (idx == BUFF_SIZE)
+        {
+            // Stop ADC(by stopping TIM3)
+            TIM_Cmd(TIM3, DISABLE);
+            ADC_Cmd(ADC1, DISABLE);
+            ADC_ExternalTrigConvCmd(ADC1, DISABLE);
+            GPIO_SetBits(GPIOC, GPIO_Pin_13);
+            idx = 0;
+            finish = 1;
+        }
+    }
+}
+
+uint16_t Audio_Decode(void)
+{
+    static uint32_t idx = 0;
+    static __IO uint8_t msb = 0, lr = 0;
+    static uint16_t val;
+
+    if (msb == 0)
+    {
+        // Put data to both channels
+        if (lr == 0)
+        {
+            val = ADPCM_Decode(voice[idx] & 0x0F);
+            lr = 1;
+        }
+        else if (lr == 1)
+        {
+            lr = 0;
+            msb = 1;
+        }
+    }
+    else
+    {
+        if (lr == 0)
+        {
+            val = ADPCM_Decode((voice[idx] >> 4) & 0x0F);
+            lr = 1;
+        }
+        else if (lr == 1)
+        {
+            lr = 0;
+            msb = 0;
+            idx++;
+            if (idx == BUFF_SIZE)
+            {
+                idx = 0;
+                ADPCM_Reset();
+            }
+        }
+    }
+    return val;
+}
+
+int main(void)
+{
+    Delay_Init();
+    USART_Printf_Init(115200);
+    RCC_GetClocksFreq(&clocks);
+
+    printf("\n");
+    printf("SYSCLK: %3.1fMhz, HCLK: %3.1fMhz, PCLK1: %3.1fMhz, PCLK2: %3.1fMhz, ADCCLK: %3.1fMhz\n",
+           (float)clocks.SYSCLK_Frequency / 1000000, (float)clocks.HCLK_Frequency / 1000000,
+           (float)clocks.PCLK1_Frequency / 1000000, (float)clocks.PCLK2_Frequency / 1000000, 
+		   (float)clocks.ADCCLK_Frequency / 1000000);
+
+    RCC_Configuration();
+    GPIO_Configuration();
+    TIM_Configuration();
+    ADC_Configuration();
+    NVIC_Configuration();
+    IIS_Configuration();
+    Delay_Ms(500);
+    printf("Start recording\r\n");
+    // Turn on LED, DMA TC1 interrupt will turn it off 
+    GPIO_ResetBits(GPIOC, GPIO_Pin_13);
+    // Start TIM3 to start recording
+    TIM_Cmd(TIM3, ENABLE);
+    while(finish == 0);
+
+    printf("Start playing\r\n");
+    ADPCM_Reset();
+    SPI_I2S_ITConfig(SPI2, SPI_I2S_IT_TXE, ENABLE);
+    while (1);
+}
 
 void RCC_Configuration(void)
 {
     // Enable periphal clock
-    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE);
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOC, ENABLE);
@@ -61,9 +171,9 @@ void TIM_Configuration(void)
 #if AUDIO_FREQ == 8000
     // Period = 72,000,000 / 8,000 = 1000 * 9
     TIM_TimeBaseStructure.TIM_Prescaler = 1000 - 1;
-#elif AUDIO_FREQ == 11000
-    // Period = 72,000,000 / 11,000 = 727 * 9
-    TIM_TimeBaseStructure.TIM_Prescaler = 727 - 1;
+#elif AUDIO_FREQ == 11025
+    // Period = 72,000,000 / 11,025 = 726 * 9
+    TIM_TimeBaseStructure.TIM_Prescaler = 726 - 1;
 #else
     // Period = 72,000,000 / 16,000 = 500 * 9
     TIM_TimeBaseStructure.TIM_Prescaler = 500 - 1;
@@ -92,6 +202,7 @@ void GPIO_Configuration(void)
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_13;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
     GPIO_Init(GPIOC, &GPIO_InitStructure);
+    GPIO_SetBits(GPIOC, GPIO_Pin_13);
 }
 
 void IIS_Configuration(void)
@@ -101,13 +212,13 @@ void IIS_Configuration(void)
     SPI_I2S_DeInit(SPI2);
     I2S_InitStructure.I2S_Mode = I2S_Mode_MasterTx;
     // PT8211:LSB,  MAX98357A:Phillips
-    I2S_InitStructure.I2S_Standard = I2S_Standard_Phillips;
+    I2S_InitStructure.I2S_Standard = I2S_Standard_LSB;
     // 16-bit data resolution
     I2S_InitStructure.I2S_DataFormat = I2S_DataFormat_16b;
 #if AUDIO_FREQ == 8000
     // 8K sampling rate
     I2S_InitStructure.I2S_AudioFreq = I2S_AudioFreq_8k;
-#elif AUDIO_FREQ == 11000
+#elif AUDIO_FREQ == 11025
     // 11K sampling rate
     I2S_InitStructure.I2S_AudioFreq = I2S_AudioFreq_11k;
 #else
@@ -117,8 +228,7 @@ void IIS_Configuration(void)
     I2S_InitStructure.I2S_CPOL = I2S_CPOL_Low;
     I2S_InitStructure.I2S_MCLKOutput = I2S_MCLKOutput_Disable;
     I2S_Init(SPI2, &I2S_InitStructure);
-
-    SPI_I2S_ITConfig(SPI2, SPI_I2S_IT_TXE, ENABLE);
+    //SPI_I2S_ITConfig(SPI2, SPI_I2S_IT_TXE, ENABLE);
     I2S_Cmd(SPI2, ENABLE);
 }
 
@@ -137,13 +247,13 @@ void ADC_Configuration(void)
     ADC_InitStructure.ADC_NbrOfChannel = 1;
     ADC_Init(ADC1, &ADC_InitStructure);
     // ADC_Channel_2 for PA2
-    ADC_RegularChannelConfig(ADC1, ADC_Channel_2, 1, ADC_SampleTime_239Cycles5);
+    ADC_RegularChannelConfig(ADC1, ADC_Channel_2, 1, ADC_SampleTime_7Cycles5);
 
     // Enable ADC1 external trigger
     ADC_ExternalTrigConvCmd(ADC1, ENABLE);
+    ADC_ITConfig(ADC1, ADC_IT_EOC, ENABLE);
 
-    // Enable ADC1 with DMA
-    ADC_DMACmd(ADC1, ENABLE);
+    // Enable ADC1
     ADC_Cmd(ADC1, ENABLE);
 
     // Calibration
@@ -153,59 +263,33 @@ void ADC_Configuration(void)
     while (ADC_GetCalibrationStatus(ADC1));
 }
 
-void DMA_Configuration(DMA_Channel_TypeDef *DMA_CHx, uint32_t ppadr, uint32_t memadr, uint16_t bufsize)
-{
-    DMA_InitTypeDef DMA_InitStructure;
-
-    DMA_DeInit(DMA_CHx);
-    DMA_InitStructure.DMA_PeripheralBaseAddr = ppadr;
-    DMA_InitStructure.DMA_MemoryBaseAddr = memadr;
-    DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;
-    DMA_InitStructure.DMA_BufferSize = bufsize;
-    // Addresss increase - peripheral:no, memory:yes
-    DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
-    DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
-    // Data unit size: 16bit
-    DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord;
-    DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord;
-    DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;
-    DMA_InitStructure.DMA_Priority = DMA_Priority_Medium;
-    // Memory to memory: no
-    DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
-    DMA_Init(DMA_CHx, &DMA_InitStructure);
-    // Enable 'Transfer complete' interrupt
-    DMA_ITConfig(DMA1_Channel1, DMA_IT_TC, ENABLE);
-    // Enable DMA
-    DMA_Cmd(DMA_CHx, ENABLE);
-}
-
 void NVIC_Configuration(void)
 {
-    // DMA1 interrupts
+    // ADC1 interrupts
     NVIC_InitTypeDef NVIC_InitStructure;
-    NVIC_InitStructure.NVIC_IRQChannel = DMA1_Channel1_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 6;
+    NVIC_InitStructure.NVIC_IRQChannel = ADC1_2_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
+
     // SPI2 interrupts
     NVIC_InitStructure.NVIC_IRQChannel = SPI2_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 6;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
 }
 
-void DMA1_Channel1_IRQHandler(void)
+void ADC1_2_IRQHandler(void)
 {
-    // DMA1 Channel1 Transfer Complete interrupt
-    if (DMA_GetITStatus(DMA1_IT_TC1))
+    if (ADC_GetITStatus(ADC1, ADC_IT_EOC) == SET)
     {
-        DMA_ClearITPendingBit(DMA1_IT_GL1);
-        // Stop ADC(by stopping TIM3)
-        TIM_Cmd(TIM3, DISABLE);
-        ADC_Cmd(ADC1, DISABLE);
-        GPIO_SetBits(GPIOC, GPIO_Pin_13);
+        ADC_ClearITPendingBit(ADC1, ADC_IT_EOC);
+        if (finish == 0)
+        {
+            Audio_Encode();
+        }
     }
 }
 
@@ -214,53 +298,6 @@ void SPI2_IRQHandler(void)
     // If TX Empty flag is set
     if (SPI_I2S_GetITStatus(SPI2, SPI_I2S_IT_TXE) == SET)
     {
-        // Put data to both channels
-        if (lr == 0)
-        {
-            lr = 1;
-            SPI_I2S_SendData(SPI2, (uint16_t)dma_buf[index] << 3);
-        }
-        else
-        {
-            lr = 0;
-            SPI_I2S_SendData(SPI2, (uint16_t)dma_buf[index++] << 3);
-            if (index == BUFF_SIZE)
-            {
-                index = 0;
-                // Disable the I2S1 TXE Interrupt to stop playing
-                SPI_I2S_ITConfig(SPI2, SPI_I2S_IT_TXE, DISABLE);
-            }
-        }
+        SPI2->DR = Audio_Decode();
     }
-}
-
-int main(void)
-{
-    Delay_Init();
-    USART_Printf_Init(115200);
-    printf("SystemClk:%ld\r\n", SystemCoreClock);
-
-    RCC_Configuration();
-    GPIO_Configuration();
-    ADC_Configuration();
-    DMA_Configuration(DMA1_Channel1, (uint32_t)&ADC1->DR, (uint32_t)dma_buf, BUFF_SIZE);
-    NVIC_Configuration();
-    TIM_Configuration();
-    IIS_Configuration();
-    GPIO_SetBits(GPIOC, GPIO_Pin_13);
-    Delay_S(1);
-    // Start timer to start recording
-    printf("Start recording\r\n");
-    TIM_Cmd(TIM3, ENABLE);
-    // Turn on LED, DMA TC1 interrupt will turn it off 
-    GPIO_ResetBits(GPIOC, GPIO_Pin_13);
-    Delay_S(4);
-    printf("Start playing\r\n");
-    while (1)
-    {
-        // Restart the playing
-        SPI_I2S_ITConfig(SPI2, SPI_I2S_IT_TXE, ENABLE);
-        Delay_S(5);
-    }
-
 }
