@@ -118,7 +118,6 @@ void IIS_Configuration(void)
     I2S_InitStructure.I2S_MCLKOutput = I2S_MCLKOutput_Disable;
     I2S_Init(SPI2, &I2S_InitStructure);
 
-    SPI_I2S_ITConfig(SPI2, SPI_I2S_IT_TXE, ENABLE);
     I2S_Cmd(SPI2, ENABLE);
 }
 
@@ -262,5 +261,4 @@ int main(void)
         SPI_I2S_ITConfig(SPI2, SPI_I2S_IT_TXE, ENABLE);
         Delay_S(5);
     }
-
 }
