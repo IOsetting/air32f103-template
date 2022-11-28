@@ -111,6 +111,9 @@ else ifeq ($(FLASH_PROGRM),cmsis-dap)
 		-c init -c "reset init" \
 		-c "program $(BDIR)/$(PROJECT).hex verify reset" \
 		-c exit
+else ifeq ($(FLASH_PROGRM),pyocd)
+	$(PYOCD_EXE) erase -c -t $(PYOCD_DEVICE) --config $(TOP)/Misc/pyocd.yaml
+	$(PYOCD_EXE) load $(BDIR)/$(PROJECT).hex -t $(PYOCD_DEVICE) --config $(TOP)/Misc/pyocd.yaml
 else
     @echo "FLASH_PROGRM is invalid\n"
 endif

@@ -10,7 +10,7 @@ BUILD_DIR 		= Build
 ENABLE_PRINTF_FLOAT	?= y
 # Build with FreeRTOS, y:yes, n:no
 USE_FREERTOS	?= n
-# Programmer, jlink, stlink, cmsis-dap
+# Programmer, jlink, stlink, cmsis-dap, pyocd
 FLASH_PROGRM    ?= stlink
 
 
@@ -19,14 +19,16 @@ FLASH_PROGRM    ?= stlink
 #ARM_TOOCHAIN 	?= /opt/gcc-arm/gcc-arm-11.2-2022.02-x86_64-arm-none-eabi/bin
 ARM_TOOCHAIN 	?= /opt/gcc-arm/arm-gnu-toolchain-11.3.rel1-x86_64-arm-none-eabi/bin
 #ARM_TOOCHAIN 	?= /opt/gcc-arm/arm-gnu-toolchain-12.2.mpacbti-bet1-x86_64-arm-none-eabi/bin
-# path to st-flash (or should be specified in PATH)
+# path to st-flash
 ST_FLASH		?= st-flash
-# path to JLinkExe (or should be specified in PATH)
+# path to JLinkExe
 JLINKEXE		?= /opt/SEGGER/JLink/JLinkExe
 JLINK_DEVICE	?= STM32F103CB
-# path to OpenOCD (or should be specified in PATH)
+# path to OpenOCD
 OPENOCD			?= openocd
-
+# path to PyOCD
+PYOCD_EXE		?= pyocd
+PYOCD_DEVICE	?= air32f103cb
 
 ##### Paths ############
 
