@@ -10,6 +10,8 @@ BUILD_DIR 		= Build
 ENABLE_PRINTF_FLOAT	?= y
 # Build with FreeRTOS, y:yes, n:no
 USE_FREERTOS	?= n
+# Build with Helix MP3 lib, y:yes, n:no
+USE_HELIX		?= n
 # Programmer, jlink, stlink, cmsis-dap, pyocd
 FLASH_PROGRM    ?= stlink
 
@@ -64,6 +66,15 @@ CFILES		+= Libraries/FreeRTOS/portable/MemMang/heap_4.c
 
 INCLUDES	+= Libraries/FreeRTOS/include \
 			Libraries/FreeRTOS/portable/GCC/ARM_CM3
+endif
+
+ifeq ($(USE_HELIX),y)
+CDIRS		+= Libraries/Helix \
+		Libraries/Helix/real
+
+INCLUDES	+= Libraries/Helix \
+		Libraries/Helix/pub \
+		Libraries/Helix/real
 endif
 
 include ./rules.mk
