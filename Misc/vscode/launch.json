@@ -1,0 +1,42 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+
+        {
+            "name": "Cortex Debug",
+            "cwd": "${workspaceFolder}",
+            "executable": "${workspaceFolder}/Build/app.elf",
+            "request": "launch",        // launch or attach
+            "type": "cortex-debug",
+            "runToEntryPoint": "main",
+            "servertype": "jlink",
+            "device": "STM32F103RC",
+            "interface": "swd",
+            "runToMain": true,          // false: run to reset handler
+            "preLaunchTask": "build",   // task from tasks.json
+            // "preLaunchCommands": ["Build all"], if not using preLaunchTask
+            "svdFile": "${workspaceFolder}/Misc/AIR32F103xx.svd",
+            "showDevDebugOutput": "vscode", // log level: parsed, raw, vscode(include vscode and raw)
+            "swoConfig":
+            {
+                "enabled": true,
+                "cpuFrequency": 72000000,
+                "swoFrequency":  4000000,
+                "source": "probe",
+                "decoders":
+                [
+                    {
+                        "label": "ITM port 0 output",
+                        "type": "console",
+                        "port": 0,
+                        "showOnStartup": true,
+                        "encoding": "ascii"
+                    }
+                ]
+            }
+        }
+    ]
+}
