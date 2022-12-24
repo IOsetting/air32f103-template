@@ -1,9 +1,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "air32f10x_dbgmcu.h"
 
-/** @addtogroup STM32F10x_StdPeriph_Driver
-  * @{
-  */
 
 /** @defgroup DBGMCU 
   * @brief DBGMCU driver modules

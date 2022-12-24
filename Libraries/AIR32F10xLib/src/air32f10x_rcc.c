@@ -1089,6 +1089,33 @@ void RCC_ClearITPendingBit(uint8_t RCC_IT)
   *(__IO uint8_t *) CIR_BYTE3_ADDRESS = RCC_IT;
 }
 
+uint32_t AIR_RCC_PLLConfig(uint32_t RCC_PLLSource, uint32_t RCC_PLLMul, FlashClkDiv Latency)
+{
+    assert_param(IS_RCC_PLL_SOURCE(RCC_PLLSource));
+    assert_param(IS_RCC_PLL_MUL(RCC_PLLMul));
+
+    RCC->RCC_SYSCFG_CONFIG = 1;           // Unlock sys_cfg gate control
+    SYSCFG->SYSCFG_LOCK = 0xa7d93a86;     // Unlock from level 1 to 3
+    SYSCFG->SYSCFG_LOCK = 0xab12dfcd;
+    SYSCFG->SYSCFG_LOCK = 0xcded3526;
+    SYSCFG->SYSCFG_RSVD0[5] = 0x200183FF; // Set sram size, enable BOOT for sram
+    *(__IO uint32_t *)(FLASH_R_BASE + 0x28C) = 0xa5a5a5a5; // Unlock QSPI
+
+    AIR_SysFreq_Set(RCC_PLLMul, Latency, 0, 1);
+    RCC->CFGR = (RCC->CFGR & ~0x00030000) | RCC_PLLSource;
+
+    // Restore previous config
+    SYSCFG->SYSCFG_RSVD0[5] = 0x20018000;
+    RCC->RCC_SYSCFG_CONFIG = 0;           // Lock sys_cfg gate control
+    SYSCFG->SYSCFG_LOCK = ~0xa7d93a86;    // Lock from level 1 to 3
+    SYSCFG->SYSCFG_LOCK = ~0xab12dfcd;
+    SYSCFG->SYSCFG_LOCK = ~0xcded3526;
+    *(__IO uint32_t *)(FLASH_R_BASE + 0x28C) = ~0xa5a5a5a5;// Lock QSPI
+
+    return 1;
+}
+
+
 /**
   * @}
   */

@@ -715,22 +715,11 @@ static void SetSysClockTo72(void)
   }
 }
 #elif defined SYSCLK_FREQ_216MHz
-typedef enum 
-{
-    FLASH_Div_0 = 0,
-    FLASH_Div_2 = 1,
-    FLASH_Div_4 = 2,
-    FLASH_Div_6 = 3,
-    FLASH_Div_8 = 4,
-    FLASH_Div_16 = 5,
-}FlashClkDiv;
 
-#define SysFreq_Set            (*((void (*)(uint32_t, FlashClkDiv , uint8_t, uint8_t))(*(uint32_t *)0x1FFFD00C)))
 
 static void SetSysClockTo216(void)
 {
   __IO uint32_t StartUpCounter = 0, HSEStatus = 0;
-  uint32_t sramsize = 0;
 
   /* SYSCLK, HCLK, PCLK2 and PCLK1 configuration ---------------------------*/    
   /* Enable HSE */
@@ -777,18 +766,17 @@ static void SetSysClockTo216(void)
     SYSCFG->SYSCFG_LOCK = 0xa7d93a86;     // Unlock from level 1 to 3
     SYSCFG->SYSCFG_LOCK = 0xab12dfcd;
     SYSCFG->SYSCFG_LOCK = 0xcded3526;
-    sramsize = SYSCFG->SYSCFG_RSVD0[5];
     SYSCFG->SYSCFG_RSVD0[5] = 0x200183FF; // Set sram size, enable BOOT for sram
     *(__IO uint32_t *)(FLASH_R_BASE + 0x28C) = 0xa5a5a5a5; // Unlock QSPI
 
-    SysFreq_Set(RCC_CFGR_PLLMULL27, 1, 0, 1);
+    AIR_SysFreq_Set(RCC_CFGR_PLLMULL27, FLASH_Div_2, 0, 1);
     /*  PLL configuration: PLLCLK = HSE * 27 = 216 MHz */
     RCC->CFGR &= (uint32_t)((uint32_t)~(RCC_CFGR_PLLSRC | RCC_CFGR_PLLXTPRE |
                                         RCC_CFGR_PLLMULL));
     RCC->CFGR |= RCC_CFGR_PLLSRC_HSE | RCC_CFGR_PLLMULL27;
 
     // Restore previous config
-    SYSCFG->SYSCFG_RSVD0[5] = sramsize;
+    SYSCFG->SYSCFG_RSVD0[5] = 0x20018000;
     RCC->RCC_SYSCFG_CONFIG = 0;           // Lock sys_cfg gate control
     SYSCFG->SYSCFG_LOCK = ~0xa7d93a86;    // Lock from level 1 to 3
     SYSCFG->SYSCFG_LOCK = ~0xab12dfcd;

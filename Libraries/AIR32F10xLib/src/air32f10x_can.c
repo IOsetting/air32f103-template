@@ -99,14 +99,12 @@ void CAN_DeInit(CAN_TypeDef* CANx)
 {
 	/* Check the parameters */
 	assert_param(IS_CAN_ALL_PERIPH(CANx));
-  /* air32f103 has CAN1 only */
-  if (CANx == CAN1)
-  {
-    /* Enable CAN1 reset state */
-    RCC_APB1PeriphResetCmd(RCC_APB1Periph_CAN1, ENABLE);
-    /* Release CAN1 from reset state */
-    RCC_APB1PeriphResetCmd(RCC_APB1Periph_CAN1, DISABLE);
-  }
+
+	/* Enable CAN1 reset state */
+	RCC_APB1PeriphResetCmd(RCC_APB1Periph_CAN1, ENABLE);
+	/* Release CAN1 from reset state */
+	RCC_APB1PeriphResetCmd(RCC_APB1Periph_CAN1, DISABLE);
+
 }
 
 /**
