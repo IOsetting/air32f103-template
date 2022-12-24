@@ -17,9 +17,9 @@ void TIM_Configuration(void)
 {
     TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
 
-    // Set TIM3 period to 1 second (clock at 72MHz)
+    // Set TIM3 period to 1 second
     TIM_TimeBaseStructure.TIM_Period = 10000 - 1;
-    TIM_TimeBaseStructure.TIM_Prescaler = 72000000 / 10000 - 1;
+    TIM_TimeBaseStructure.TIM_Prescaler = SystemCoreClock / 10000 - 1;
     TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
     TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
     TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);
