@@ -14,8 +14,8 @@
 //#define SYSCLK_FREQ_36MHz  36000000
 //#define SYSCLK_FREQ_48MHz  48000000
 //#define SYSCLK_FREQ_56MHz  56000000
-#define SYSCLK_FREQ_72MHz  72000000
-//#define SYSCLK_FREQ_216MHz  216000000
+//#define SYSCLK_FREQ_72MHz  72000000
+#define SYSCLK_FREQ_216MHz  216000000
 
 
 /*!< Uncomment the following line if you need to relocate your vector Table in
@@ -762,7 +762,7 @@ static void SetSysClockTo216(void)
     /*
      * Set PLL, System clock = 8MHz * PLLMul
      */
-    RCC->RCC_SYSCFG_CONFIG = 1;           // Unlock sys_cfg gate control
+    RCC->RCC_SYSCFG_CONFIG = ENABLE;           // Unlock sys_cfg gate control
     SYSCFG->SYSCFG_LOCK = 0xa7d93a86;     // Unlock from level 1 to 3
     SYSCFG->SYSCFG_LOCK = 0xab12dfcd;
     SYSCFG->SYSCFG_LOCK = 0xcded3526;
@@ -777,7 +777,7 @@ static void SetSysClockTo216(void)
 
     // Restore previous config
     SYSCFG->SYSCFG_RSVD0[5] = 0x20018000;
-    RCC->RCC_SYSCFG_CONFIG = 0;           // Lock sys_cfg gate control
+    RCC->RCC_SYSCFG_CONFIG = DISABLE;           // Lock sys_cfg gate control
     SYSCFG->SYSCFG_LOCK = ~0xa7d93a86;    // Lock from level 1 to 3
     SYSCFG->SYSCFG_LOCK = ~0xab12dfcd;
     SYSCFG->SYSCFG_LOCK = ~0xcded3526;

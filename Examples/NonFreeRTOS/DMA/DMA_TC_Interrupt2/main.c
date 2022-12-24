@@ -1,13 +1,14 @@
 /**
  * Example of DMA with ADC1 being triggered by TIM3 update interrupts
 */
+#include <stdlib.h>
 #include <air32f10x_adc.h>
 #include <air32f10x_dma.h>
 #include <air32f10x_tim.h>
 #include "debug.h"
 
-#define BUFF_SIZE 8000
-uint16_t dma_buf[BUFF_SIZE];
+#define BUFF_SIZE 48000
+uint16_t *dma_buf;
 
 
 void RCC_Configuration(void)
@@ -135,6 +136,9 @@ int main(void)
     RCC_Configuration();
     GPIO_Configuration();
     ADC_Configuration();
+
+    dma_buf =  (uint16_t *)malloc(BUFF_SIZE * sizeof(uint16_t));
+    printf("Malloc size: %d\r\n", BUFF_SIZE * sizeof(uint16_t));
     /*
      * Note: On STM32 you can set ADC result left-aligned and use '(uint32_t)&ADC1->DR + 1'
      * to send the 8-bit result to DMA, but this doesn't work on AIR32, 
