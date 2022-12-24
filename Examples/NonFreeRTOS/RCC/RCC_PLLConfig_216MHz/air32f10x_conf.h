@@ -20,7 +20,6 @@
 #include "air32f10x_iwdg.h"
 #include "air32f10x_pwr.h"
 #include "air32f10x_rcc.h"
-#include "air32f10x_rcc_ex.h"
 #include "air32f10x_rtc.h"
 #include "air32f10x_sdio.h"
 #include "air32f10x_spi.h"

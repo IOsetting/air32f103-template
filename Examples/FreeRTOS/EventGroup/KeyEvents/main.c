@@ -4,7 +4,6 @@
 #include "debug.h"
 #include "air32f10x.h"
 #include "air32f10x_exti.h"
-#include "air32f10x_rcc_ex.h"
 #include "misc.h"
 #include "FreeRTOS.h"
 #include "event_groups.h"
