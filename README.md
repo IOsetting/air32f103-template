@@ -87,20 +87,26 @@ BUILD_DIR 		= Build
 
 ##### Options #####
 
-# Use FreeRTOS, y:yes, n:no
+# Enable printf float %f support, y:yes, n:no
+ENABLE_PRINTF_FLOAT	?= y
+# Build with FreeRTOS, y:yes, n:no
 USE_FREERTOS	?= n
-# Programmer, jlink or stlink
+# Programmer, jlink, stlink, cmsis-dap, pyocd
 FLASH_PROGRM    ?= stlink
 
 ##### Toolchains #######
-# Toolchain path
-ARM_TOOCHAIN 	?= /opt/gcc-arm/gcc-arm-11.2-2022.02-x86_64-arm-none-eabi/bin
 
-# st-flash path
+ARM_TOOCHAIN 	?= /opt/gcc-arm/arm-gnu-toolchain-12.2.mpacbti-bet1-x86_64-arm-none-eabi/bin
+# path to st-flash
 ST_FLASH		?= st-flash
-# JLinkExe path
+# path to JLinkExe
 JLINKEXE		?= /opt/SEGGER/JLink/JLinkExe
 JLINK_DEVICE	?= STM32F103CB
+# path to OpenOCD
+OPENOCD			?= openocd
+# path to PyOCD
+PYOCD_EXE		?= pyocd
+PYOCD_DEVICE	?= air32f103cb
 
 ##### Paths ############
 
@@ -122,4 +128,4 @@ make flash
 
 # Examples
 
-All examples are under Examples folder, to run the example, delete all files under User folder and copy the example source codes to it.
+More examples can be found in Examples folder, copy and replace the files under User folder to try different examples.
