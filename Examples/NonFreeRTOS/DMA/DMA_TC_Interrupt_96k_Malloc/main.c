@@ -7,7 +7,7 @@
 #include <air32f10x_tim.h>
 #include "debug.h"
 
-#define BUFF_SIZE 48000
+#define BUFF_SIZE 47000
 uint16_t *dma_buf;
 
 
