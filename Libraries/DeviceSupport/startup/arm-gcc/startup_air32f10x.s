@@ -50,7 +50,7 @@ defined in linker script */
 Reset_Handler:
     bl  System_Unlock
 
-/* Unlock the hidden 97KB RAM, QSPI and the hgh speed PLL alowwing to clock up to 256MHz.*/
+/* Unlock the hidden 97KB RAM, QSPI and the high speed PLL allowing clocks up to 256MHz.*/
 /* We needs this before initializing the data or it'll trigger a hardfault */
 System_Unlock:
 	ldr r0,=0x400210F0
