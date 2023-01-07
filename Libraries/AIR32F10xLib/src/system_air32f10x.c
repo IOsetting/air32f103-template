@@ -41,15 +41,6 @@
 *******************************************************************************/
 #ifdef SYSCLK_HSE                                               /*!< HSE Selected as System Clock source */
   uint32_t SystemCoreClock         = SYSCLK_FREQ_HSE;
-
-  static const uint32_t multi[] = {
-          RCC_CFGR_PLLMULL2,  RCC_CFGR_PLLMULL3,  RCC_CFGR_PLLMULL4,  RCC_CFGR_PLLMULL5,  RCC_CFGR_PLLMULL6,  RCC_CFGR_PLLMULL7,
-          RCC_CFGR_PLLMULL8,  RCC_CFGR_PLLMULL9,  RCC_CFGR_PLLMULL10, RCC_CFGR_PLLMULL11, RCC_CFGR_PLLMULL12, RCC_CFGR_PLLMULL13,
-          RCC_CFGR_PLLMULL14, RCC_CFGR_PLLMULL15, RCC_CFGR_PLLMULL16, RCC_CFGR_PLLMULL17, RCC_CFGR_PLLMULL18, RCC_CFGR_PLLMULL19,
-          RCC_CFGR_PLLMULL20, RCC_CFGR_PLLMULL21, RCC_CFGR_PLLMULL22, RCC_CFGR_PLLMULL23, RCC_CFGR_PLLMULL24, RCC_CFGR_PLLMULL25,
-          RCC_CFGR_PLLMULL26, RCC_CFGR_PLLMULL27, RCC_CFGR_PLLMULL28, RCC_CFGR_PLLMULL29, RCC_CFGR_PLLMULL30, RCC_CFGR_PLLMULL31,
-          RCC_CFGR_PLLMULL32,
-  };
 #else                                                           /*!< HSI Selected as System Clock source */
   uint32_t SystemCoreClock         = HSI_VALUE;
 #endif
@@ -106,7 +97,7 @@ void SystemInit (void)
   RCC->CFGR &= (uint32_t)0xFF80FFFF;                        /* Reset PLLSRC, PLLXTPRE, PLLMUL and USBPRE/OTGFSPRE bits */
   RCC->CIR = 0x009F0000;                                    /* Disable all interrupts and clear pending bits  */
   SetSysClock();                                            /* Configure System clocks, enable prefetch buffer */
-
+  SystemCoreClockUpdate();
 #ifdef VECT_TAB_SRAM
   SCB->VTOR = SRAM_BASE | VECT_TAB_OFFSET;                  /* Vector Table Relocation in Internal SRAM. */
 #else
@@ -165,22 +156,16 @@ void SystemCoreClockUpdate (void)
       SystemCoreClock = HSE_VALUE;
       break;
     case 0x08:  /* PLL used as system clock */
-
       /* Get PLL clock source and multiplication factor ----------------------*/
-      pllmull = RCC->CFGR & RCC_CFGR_PLLMULL;
+      pllmull = (RCC->CFGR & RCC_CFGR_PLLMULL) >> 18;
       pllsource = RCC->CFGR & RCC_CFGR_PLLSRC;
 
-      if (RCC->CFGR >> 28 & 0x01)
-      {
-        pllmull = (0x01 << 4 | (pllmull >> 18)) + 1;
-      }
+      if (RCC->CFGR & 1<<28)                               /* High speed PLL bit */
+          pllmull += 17;
       else
-      {
-        pllmull = (pllmull >> 18) + 2;
-      }
+          pllmull += 2;                                    /* Normal PLL */
       
-      if (pllsource == 0x00)
-      {
+      if (pllsource == 0x00){
         /* HSI oscillator clock divided by 2 selected as PLL clock entry */
         SystemCoreClock = (HSI_VALUE >> 1) * pllmull;
       }
@@ -254,18 +239,22 @@ static void SetSysClockToHSE(void)
         }
     }
     else{                                                                       /* If multiplier defined */
-        if(PLL_M > 31)
-            PLL_M = 31;                                                         /* Check limits. Real value is multiplier+1 */
-        if(high_speed){                                                         /* 0 wait states up to 106MHz */
+        if(PLL_M > 32)
+            PLL_M = 32;                                                         /* Check limits. Real value is multiplier+1 */
+        if(PLL_M<17)
+            PLL_M = (PLL_M-2)<<18;                                              /* Low speed PLL setting*/
+        else
+            PLL_M = ((PLL_M-17) | 1<<10 )<<18;                                  /* High speed PLL setting*/
+        if(high_speed){
             FLASH->ACR |= (uint32_t)FLASH_ACR_LATENCY_1;                        /* 1 wait states >106MHz */
-            AIR_SysFreq_Set(multi[PLL_M], FLASH_Div_2, 0, 1);                   /* Set PLL */
+            AIR_SysFreq_Set(PLL_M, FLASH_Div_2, 0, 1);                   /* Set PLL */
         }
         else
-            AIR_SysFreq_Set(multi[PLL_M], FLASH_Div_0, 0, 1);
+            AIR_SysFreq_Set(PLL_M, FLASH_Div_0, 0, 1);                   /* 0 wait states up to 106MHz */
 
         RCC->CFGR &= (uint32_t)((uint32_t)~(RCC_CFGR_PLLSRC | RCC_CFGR_PLLXTPRE |
                                             RCC_CFGR_PLLMULL));
-        RCC->CFGR |= RCC_CFGR_PLLSRC_HSE | multi[PLL_M];
+        RCC->CFGR |= RCC_CFGR_PLLSRC_HSE | PLL_M;
         RCC->CR |= RCC_CR_PLLON;                                                /* Enable PLL */
         while((RCC->CR & RCC_CR_PLLRDY) == 0)                                   /* Wait till PLL is ready */
         {
