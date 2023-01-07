@@ -48,10 +48,30 @@ defined in linker script */
 	.weak	Reset_Handler
 	.type	Reset_Handler, %function
 Reset_Handler:
+    bl  System_Unlock
+
+/* Unlock the hidden 97KB RAM and QSPI*/
+/* We needs this before initializing the data or it'll trigger a hardfault */
+System_Unlock:
+	ldr r0,=0x400210F0
+	mov r1,#1
+	str r1,[r0]
+	ldr r2,=0x40016C00
+	ldr r3,=0xa7d93a86
+	str r3,[r2]
+	ldr r3,=0xab12dfcd
+	str r3,[r2]
+	ldr r3,=0xcded3526
+	str r3,[r2]
+	ldr r3,=0x200183FF
+	str r3,[r2,#0x18] 		@ 32k -> 97k(!)
+	ldr r4,=0x4002228c
+	ldr r5,=0xa5a5a5a5
+	str r5,[r4] 			@//QSPI
 
 /* Copy the data segment initializers from flash to SRAM */
-  movs	r1, #0
-  b	LoopCopyDataInit
+    movs	r1, #0
+	bl LoopCopyDataInit
 
 CopyDataInit:
 	ldr	r3, =_sidata

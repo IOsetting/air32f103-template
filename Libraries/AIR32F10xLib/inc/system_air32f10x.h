@@ -68,6 +68,9 @@ extern uint32_t SystemCoreClock;          /*!< System Clock Frequency (Core Cloc
   * @{
   */
 
+#define CLK_MHz(n)              (1000000L*n)
+#define HSE(n)                  CLK_MHz(n)
+  
 /**
   * @}
   */
