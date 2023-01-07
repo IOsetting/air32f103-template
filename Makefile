@@ -35,7 +35,7 @@ PYOCD_DEVICE	?= air32f103cb
 ##### Paths ############
 
 # Link descript file for this chip
-LDSCRIPT		= Libraries/LDScripts/air32f103cbt6.ld
+LDSCRIPT		= Libraries/LDScripts/air32f103x.ld
 # Library build flags
 LIB_FLAGS       = USE_STDPERIPH_DRIVER
 
