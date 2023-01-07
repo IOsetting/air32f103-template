@@ -215,7 +215,6 @@ static void SetSysClockToHSE(void)
 {
     __IO uint32_t StartUpCounter = 0;
     uint32_t PLL_M = SYSCLK_HSE/HSE_VALUE;                                     /* Calculate multiplier  */
-    uint8_t high_speed = SYSCLK_HSE > CLK_MHz(106);
 
     /* SYSCLK, HCLK, PCLK2 and PCLK1 configuration ---------------------------*/
 
@@ -227,9 +226,9 @@ static void SetSysClockToHSE(void)
 
     FLASH->ACR |= FLASH_ACR_PRFTBE;                                             /* Enable Prefetch Buffer */
     FLASH->ACR &= (uint32_t)((uint32_t)~FLASH_ACR_LATENCY);                     /* Reset Flash wait state */
-    RCC->CFGR |= (uint32_t)RCC_CFGR_HPRE_DIV1;                                  /* HCLK = SYSCLK */
-    RCC->CFGR |= (uint32_t)RCC_CFGR_PPRE2_DIV1;                                 /* PCLK2 = HCLK */
-    RCC->CFGR |= (uint32_t)RCC_CFGR_PPRE1_DIV2;                                 /* PCLK1 = HCLK */
+    RCC->CFGR |= (uint32_t)RCC_CFGR_HPRE_DIV1;                              /* HCLK = SYSCLK */
+    RCC->CFGR |= (uint32_t)RCC_CFGR_PPRE2_DIV1;                             /* PCLK2 = HCLK */
+    RCC->CFGR |= (uint32_t)RCC_CFGR_PPRE1_DIV2;                             /* PCLK1 = HCLK */
     RCC->CFGR &= (uint32_t)((uint32_t)~(RCC_CFGR_SW));
 
     if(PLL_M < 2){                                                              /* No multiplier, use HSE */
@@ -239,21 +238,25 @@ static void SetSysClockToHSE(void)
         }
     }
     else{                                                                       /* If multiplier defined */
+        uint8_t flash_div;
+
+        if(SYSCLK_HSE <= CLK_MHz(106))
+            flash_div = FLASH_Div_0;                                            /* 0 wait states up to 106MHz */
+        else
+            flash_div = FLASH_Div_2;                                            /* 1 wait states over 106MHz */
+
         if(PLL_M > 32)
             PLL_M = 32;                                                         /* Check limits */
+
         if(PLL_M<17)
             PLL_M = (PLL_M-2)<<18;                                              /* Low speed PLL setting*/
         else
             PLL_M = ((PLL_M-17) | 1<<10 )<<18;                                  /* High speed PLL setting*/
-        if(high_speed){
-            FLASH->ACR |= (uint32_t)FLASH_ACR_LATENCY_1;                        /* 1 wait states >106MHz */
-            AIR_SysFreq_Set(PLL_M, FLASH_Div_2, 0, 1);                          /* Set PLL */
-        }
-        else
-            AIR_SysFreq_Set(PLL_M, FLASH_Div_0, 0, 1);                          /* 0 wait states up to 106MHz */
 
+        AIR_SysFreq_Set(PLL_M, flash_div, 0, 1);                                /* Internal ROM hack to enable fast PLL */
+     
         RCC->CFGR &= (uint32_t)((uint32_t)~(RCC_CFGR_PLLSRC | RCC_CFGR_PLLXTPRE |
-                                            RCC_CFGR_PLLMULL));
+                                                RCC_CFGR_PLLMULL));             /* PLL configuration */
         RCC->CFGR |= RCC_CFGR_PLLSRC_HSE | PLL_M;
         RCC->CR |= RCC_CR_PLLON;                                                /* Enable PLL */
         while((RCC->CR & RCC_CR_PLLRDY) == 0)                                   /* Wait till PLL is ready */
