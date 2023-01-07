@@ -240,7 +240,7 @@ static void SetSysClockToHSE(void)
     }
     else{                                                                       /* If multiplier defined */
         if(PLL_M > 32)
-            PLL_M = 32;                                                         /* Check limits. Real value is multiplier+1 */
+            PLL_M = 32;                                                         /* Check limits */
         if(PLL_M<17)
             PLL_M = (PLL_M-2)<<18;                                              /* Low speed PLL setting*/
         else
