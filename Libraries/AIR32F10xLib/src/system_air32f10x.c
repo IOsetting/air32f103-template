@@ -71,7 +71,9 @@ __attribute__((weak))  void clockFailure(void){
   */
 
 static void SetSysClock(void);
+#ifdef SYSCLK_FREQ_HSE
 static void SetSysClockToHSE(void);
+#endif
 
 #ifdef DATA_IN_ExtSRAM
   static void SystemInit_ExtMemCtl(void); 
