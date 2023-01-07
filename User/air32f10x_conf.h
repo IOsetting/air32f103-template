@@ -2,6 +2,11 @@
 #ifndef __AIR32F10x_CONF_H
 #define __AIR32F10x_CONF_H
 
+/* Set system clock speed in MHZ
+*  It will revert to HSI mode if not defined
+*/
+#define SYSCLK_HSE      HSE(216)
+
 /* Includes ------------------------------------------------------------------*/
 /* Uncomment/Comment the line below to enable/disable peripheral header file inclusion */
 #include "air32f10x_adc.h"
