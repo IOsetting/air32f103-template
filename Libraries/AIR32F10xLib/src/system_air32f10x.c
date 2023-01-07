@@ -247,10 +247,10 @@ static void SetSysClockToHSE(void)
             PLL_M = ((PLL_M-17) | 1<<10 )<<18;                                  /* High speed PLL setting*/
         if(high_speed){
             FLASH->ACR |= (uint32_t)FLASH_ACR_LATENCY_1;                        /* 1 wait states >106MHz */
-            AIR_SysFreq_Set(PLL_M, FLASH_Div_2, 0, 1);                   /* Set PLL */
+            AIR_SysFreq_Set(PLL_M, FLASH_Div_2, 0, 1);                          /* Set PLL */
         }
         else
-            AIR_SysFreq_Set(PLL_M, FLASH_Div_0, 0, 1);                   /* 0 wait states up to 106MHz */
+            AIR_SysFreq_Set(PLL_M, FLASH_Div_0, 0, 1);                          /* 0 wait states up to 106MHz */
 
         RCC->CFGR &= (uint32_t)((uint32_t)~(RCC_CFGR_PLLSRC | RCC_CFGR_PLLXTPRE |
                                             RCC_CFGR_PLLMULL));
