@@ -9,13 +9,12 @@ void GPIO_Configuration(void)
 {
 	GPIO_InitTypeDef GPIO_InitStructure;
 
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE); //使能GPIOB时钟
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2 | GPIO_Pin_10 | GPIO_Pin_11;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz; //速度50MHz
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;	 //输出模式
-	GPIO_Init(GPIOB, &GPIO_InitStructure); //初始化GPIOB.2,10,11
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
 }
-
 
 int main(void)
 {
@@ -28,7 +27,7 @@ int main(void)
 	printf("SYSCLK: %ld, HCLK: %ld, PCLK1: %ld, PCLK2: %ld, ADCCLK: %ld\n",
 			   clocks.SYSCLK_Frequency, clocks.HCLK_Frequency,
 			   clocks.PCLK1_Frequency, clocks.PCLK2_Frequency, clocks.ADCCLK_Frequency);
-	printf("AIR32F103 GPIO IO Out Test.\n");
+	printf("AIR32F103 GPIO Output Test.\n");
 	GPIO_Configuration();
 
 	while (1)
