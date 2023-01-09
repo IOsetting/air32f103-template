@@ -1,3 +1,9 @@
+/**
+ * CoreMark Benchmark
+ * 
+ * -- Change system clock by changing SYSCLK_HSE in air32f10x_conf.h
+ * 
+*/
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -6,32 +12,7 @@
 #include "air32f10x_tim.h"
 #include "misc.h"
 
-#define RCC_PLL_NUM RCC_PLLMul_32 
-
 RCC_ClocksTypeDef clocks;
-
-void RCC_ClkConfiguration(void)
-{
-    RCC_DeInit(); // Reset RCC
-
-    RCC_HSEConfig(RCC_HSE_ON); // Enable external high speed osc
-    while (RCC_GetFlagStatus(RCC_FLAG_HSERDY) == RESET); // Wait till HSE ready
-
-    RCC_PLLCmd(DISABLE);    // Turn PLL off
-    /*
-     * Set PLL, System clock = 8MHz * PLLMul
-     */
-    AIR_RCC_PLLConfig(RCC_PLLSource_HSE_Div1, RCC_PLL_NUM, 1);
-
-    RCC_PLLCmd(ENABLE);     // Turn PLL on
-    while (RCC_GetFlagStatus(RCC_FLAG_PLLRDY) == RESET); // Wait till PLL ready
-
-    RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK); // Select PLL as system clock
-
-    RCC_HCLKConfig(RCC_SYSCLK_Div1);    // AHB clock = sysclk
-    RCC_PCLK1Config(RCC_HCLK_Div2);     // APB1 clock = HCLK / 2
-    RCC_PCLK2Config(RCC_HCLK_Div1);     // APB2 clock = HCLK
-}
 
 void TIM2_Init(void)
 {
@@ -57,7 +38,6 @@ void TIM2_Init(void)
 
 void main_original(void)
 {
-    RCC_ClkConfiguration(); // Set PLL clock
     Delay_Init();
     USART_Printf_Init(115200);
 

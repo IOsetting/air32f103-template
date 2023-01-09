@@ -32,24 +32,4 @@ On STM32 you can set ADC result left-aligned and use '(uint32_t)&ADC1->DR + 1' t
 
 # 96K RAM Hack
 
-In order to run example DMA_TC_Interrupt_96k_malloc and DMA_TC_Interrupt_96k_Static, the following changes need to be made
-
-Edit Libraries/LDScripts/air32f103cbt6.ld or air32f103cct6, change **RAM LENGTH** to 96K
-```
-MEMORY
-{
-  FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 256K
-  RAM (xrw)       : ORIGIN = 0x20000000, LENGTH = 96K          <---- Change this value
-  MEMORY_B1 (rx)  : ORIGIN = 0x60000000, LENGTH = 0K
-}
-```
-In Libraries/AIR32F10xLib/src/system_air32f10x.c, make sure **SYSCLK_FREQ_216MHz** macro is enabled
-```
-//#define SYSCLK_FREQ_HSE    HSE_VALUE
-//#define SYSCLK_FREQ_24MHz  24000000 
-//#define SYSCLK_FREQ_36MHz  36000000
-//#define SYSCLK_FREQ_48MHz  48000000
-//#define SYSCLK_FREQ_56MHz  56000000
-//#define SYSCLK_FREQ_72MHz  72000000
-#define SYSCLK_FREQ_216MHz  216000000                          <---- Enable this
-```
+Thanks to @deividAlfa, RAM hack has been integrated into startup. Nothing need to change.

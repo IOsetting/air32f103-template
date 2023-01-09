@@ -2,9 +2,8 @@
 #ifndef __AIR32F10x_IT_H
 #define __AIR32F10x_IT_H
 
-/* Includes ------------------------------------------------------------------*/
-#include "air32f10x.h"
 
+#include "air32f10x.h"
 
 void NMI_Handler(void);
 void HardFault_Handler(void);
