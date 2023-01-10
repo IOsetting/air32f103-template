@@ -1,6 +1,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "air32f10x_flash.h"
-/** @addtogroup STM32F10x_StdPeriph_Driver
+/** @addtogroup AIR32F103_StdPeriph_Driver
   * @{
   */
 
@@ -94,25 +94,25 @@
 /**
 @code  
  
- This driver provides functions to configure and program the Flash memory of all STM32F10x devices,
- including the latest STM32F10x_XL density devices. 
+ This driver provides functions to configure and program the Flash memory of all AIR32F103 devices,
+ including the latest AIR32F103_XL density devices. 
 
- STM32F10x_XL devices feature up to 1 Mbyte with dual bank architecture for read-while-write (RWW) capability:
+ AIR32F103_XL devices feature up to 1 Mbyte with dual bank architecture for read-while-write (RWW) capability:
     - bank1: fixed size of 512 Kbytes (256 pages of 2Kbytes each)
     - bank2: up to 512 Kbytes (up to 256 pages of 2Kbytes each)
- While other STM32F10x devices features only one bank with memory up to 512 Kbytes.
+ While other AIR32F103 devices features only one bank with memory up to 512 Kbytes.
 
  In version V3.3.0, some functions were updated and new ones were added to support
- STM32F10x_XL devices. Thus some functions manages all devices, while other are 
+ AIR32F103_XL devices. Thus some functions manages all devices, while other are 
  dedicated for XL devices only.
  
- The table below presents the list of available functions depending on the used STM32F10x devices.  
+ The table below presents the list of available functions depending on the used AIR32F103 devices.  
       
    ***************************************************
-   * Legacy functions used for all STM32F10x devices *
+   * Legacy functions used for all AIR32F103 devices *
    ***************************************************
    +----------------------------------------------------------------------------------------------------------------------------------+
-   |       Functions prototypes         |STM32F10x_XL|Other STM32F10x|    Comments                                                    |
+   |       Functions prototypes         |AIR32F103_XL|Other AIR32F103|    Comments                                                    |
    |                                    |   devices  |  devices      |                                                                |
    |----------------------------------------------------------------------------------------------------------------------------------|
    |FLASH_SetLatency                    |    Yes     |      Yes      | No change                                                      |
@@ -121,18 +121,18 @@
    |----------------------------------------------------------------------------------------------------------------------------------|
    |FLASH_PrefetchBufferCmd             |    Yes     |      Yes      | No change                                                      |
    |----------------------------------------------------------------------------------------------------------------------------------|
-   |FLASH_Unlock                        |    Yes     |      Yes      | - For STM32F10X_XL devices: unlock Bank1 and Bank2.            |
+   |FLASH_Unlock                        |    Yes     |      Yes      | - For AIR32F10X_XL devices: unlock Bank1 and Bank2.            |
    |                                    |            |               | - For other devices: unlock Bank1 and it is equivalent         |
    |                                    |            |               |   to FLASH_UnlockBank1 function.                               |
    |----------------------------------------------------------------------------------------------------------------------------------|
-   |FLASH_Lock                          |    Yes     |      Yes      | - For STM32F10X_XL devices: lock Bank1 and Bank2.              |
+   |FLASH_Lock                          |    Yes     |      Yes      | - For AIR32F10X_XL devices: lock Bank1 and Bank2.              |
    |                                    |            |               | - For other devices: lock Bank1 and it is equivalent           |
    |                                    |            |               |   to FLASH_LockBank1 function.                                 |
    |----------------------------------------------------------------------------------------------------------------------------------|
-   |FLASH_ErasePage                     |    Yes     |      Yes      | - For STM32F10x_XL devices: erase a page in Bank1 and Bank2    |
+   |FLASH_ErasePage                     |    Yes     |      Yes      | - For AIR32F103_XL devices: erase a page in Bank1 and Bank2    |
    |                                    |            |               | - For other devices: erase a page in Bank1                     |
    |----------------------------------------------------------------------------------------------------------------------------------|
-   |FLASH_EraseAllPages                 |    Yes     |      Yes      | - For STM32F10x_XL devices: erase all pages in Bank1 and Bank2 |
+   |FLASH_EraseAllPages                 |    Yes     |      Yes      | - For AIR32F103_XL devices: erase all pages in Bank1 and Bank2 |
    |                                    |            |               | - For other devices: erase all pages in Bank1                  |
    |----------------------------------------------------------------------------------------------------------------------------------|
    |FLASH_EraseOptionBytes              |    Yes     |      Yes      | No change                                                      |
@@ -157,13 +157,13 @@
    |----------------------------------------------------------------------------------------------------------------------------------|
    |FLASH_GetPrefetchBufferStatus       |    Yes     |      Yes      | No change                                                      |
    |----------------------------------------------------------------------------------------------------------------------------------|
-   |FLASH_ITConfig                      |    Yes     |      Yes      | - For STM32F10x_XL devices: enable Bank1 and Bank2's interrupts|
+   |FLASH_ITConfig                      |    Yes     |      Yes      | - For AIR32F103_XL devices: enable Bank1 and Bank2's interrupts|
    |                                    |            |               | - For other devices: enable Bank1's interrupts                 |
    |----------------------------------------------------------------------------------------------------------------------------------|
-   |FLASH_GetFlagStatus                 |    Yes     |      Yes      | - For STM32F10x_XL devices: return Bank1 and Bank2's flag status|
+   |FLASH_GetFlagStatus                 |    Yes     |      Yes      | - For AIR32F103_XL devices: return Bank1 and Bank2's flag status|
    |                                    |            |               | - For other devices: return Bank1's flag status                |
    |----------------------------------------------------------------------------------------------------------------------------------|
-   |FLASH_ClearFlag                     |    Yes     |      Yes      | - For STM32F10x_XL devices: clear Bank1 and Bank2's flag       |
+   |FLASH_ClearFlag                     |    Yes     |      Yes      | - For AIR32F103_XL devices: clear Bank1 and Bank2's flag       |
    |                                    |            |               | - For other devices: clear Bank1's flag                        |
    |----------------------------------------------------------------------------------------------------------------------------------|
    |FLASH_GetStatus                     |    Yes     |      Yes      | - Return the status of Bank1 (for all devices)                 |
@@ -174,12 +174,12 @@
    +----------------------------------------------------------------------------------------------------------------------------------+
 
    ************************************************************************************************************************
-   * New functions used for all STM32F10x devices to manage Bank1:                                                        *
-   *   - These functions are mainly useful for STM32F10x_XL density devices, to have separate control for Bank1 and bank2 *
+   * New functions used for all AIR32F103 devices to manage Bank1:                                                        *
+   *   - These functions are mainly useful for AIR32F103_XL density devices, to have separate control for Bank1 and bank2 *
    *   - For other devices, these functions are optional (covered by functions listed above)                              *
    ************************************************************************************************************************
    +----------------------------------------------------------------------------------------------------------------------------------+
-   |       Functions prototypes         |STM32F10x_XL|Other STM32F10x|    Comments                                                    |
+   |       Functions prototypes         |AIR32F103_XL|Other AIR32F103|    Comments                                                    |
    |                                    |   devices  |  devices      |                                                                |
    |----------------------------------------------------------------------------------------------------------------------------------|
    | FLASH_UnlockBank1                  |    Yes     |      Yes      | - Unlock Bank1                                                 |
@@ -194,10 +194,10 @@
    +----------------------------------------------------------------------------------------------------------------------------------+
 
    *****************************************************************************
-   * New Functions used only with STM32F10x_XL density devices to manage Bank2 *
+   * New Functions used only with AIR32F103_XL density devices to manage Bank2 *
    *****************************************************************************
    +----------------------------------------------------------------------------------------------------------------------------------+
-   |       Functions prototypes         |STM32F10x_XL|Other STM32F10x|    Comments                                                    |
+   |       Functions prototypes         |AIR32F103_XL|Other AIR32F103|    Comments                                                    |
    |                                    |   devices  |  devices      |                                                                |
    |----------------------------------------------------------------------------------------------------------------------------------|
    | FLASH_UnlockBank2                  |    Yes     |      No       | - Unlock Bank2                                                 |
@@ -217,7 +217,7 @@
 
 /**
   * @brief  Sets the code latency value.
-  * @note   This function can be used for all STM32F10x devices.
+  * @note   This function can be used for all AIR32F103 devices.
   * @param  FLASH_Latency: specifies the FLASH Latency value.
   *   This parameter can be one of the following values:
   *     @arg FLASH_Latency_0: FLASH Zero Latency cycle
@@ -245,7 +245,7 @@ void FLASH_SetLatency(uint32_t FLASH_Latency)
 
 /**
   * @brief  Enables or disables the Half cycle flash access.
-  * @note   This function can be used for all STM32F10x devices.
+  * @note   This function can be used for all AIR32F103 devices.
   * @param  FLASH_HalfCycleAccess: specifies the FLASH Half cycle Access mode.
   *   This parameter can be one of the following values:
   *     @arg FLASH_HalfCycleAccess_Enable: FLASH Half Cycle Enable
@@ -264,7 +264,7 @@ void FLASH_HalfCycleAccessCmd(uint32_t FLASH_HalfCycleAccess)
 
 /**
   * @brief  Enables or disables the Prefetch Buffer.
-  * @note   This function can be used for all STM32F10x devices.
+  * @note   This function can be used for all AIR32F103 devices.
   * @param  FLASH_PrefetchBuffer: specifies the Prefetch buffer status.
   *   This parameter can be one of the following values:
   *     @arg FLASH_PrefetchBuffer_Enable: FLASH Prefetch Buffer Enable
@@ -283,8 +283,8 @@ void FLASH_PrefetchBufferCmd(uint32_t FLASH_PrefetchBuffer)
 
 /**
   * @brief  Unlocks the FLASH Program Erase Controller.
-  * @note   This function can be used for all STM32F10x devices.
-  *         - For STM32F10X_XL devices this function unlocks Bank1 and Bank2.
+  * @note   This function can be used for all AIR32F103 devices.
+  *         - For AIR32F10X_XL devices this function unlocks Bank1 and Bank2.
   *         - For all other devices it unlocks Bank1 and it is equivalent 
   *           to FLASH_UnlockBank1 function.. 
   * @param  None
@@ -296,16 +296,16 @@ void FLASH_Unlock(void)
   FLASH->KEYR = FLASH_KEY1;
   FLASH->KEYR = FLASH_KEY2;
 
-#ifdef STM32F10X_XL
+#ifdef AIR32F10X_XL
   /* Authorize the FPEC of Bank2 Access */
   FLASH->KEYR2 = FLASH_KEY1;
   FLASH->KEYR2 = FLASH_KEY2;
-#endif /* STM32F10X_XL */
+#endif /* AIR32F10X_XL */
 }
 /**
   * @brief  Unlocks the FLASH Bank1 Program Erase Controller.
-  * @note   This function can be used for all STM32F10x devices.
-  *         - For STM32F10X_XL devices this function unlocks Bank1.
+  * @note   This function can be used for all AIR32F103 devices.
+  *         - For AIR32F10X_XL devices this function unlocks Bank1.
   *         - For all other devices it unlocks Bank1 and it is 
   *           equivalent to FLASH_Unlock function.
   * @param  None
@@ -318,10 +318,10 @@ void FLASH_UnlockBank1(void)
   FLASH->KEYR = FLASH_KEY2;
 }
 
-#ifdef STM32F10X_XL
+#ifdef AIR32F10X_XL
 /**
   * @brief  Unlocks the FLASH Bank2 Program Erase Controller.
-  * @note   This function can be used only for STM32F10X_XL density devices.
+  * @note   This function can be used only for AIR32F10X_XL density devices.
   * @param  None
   * @retval None
   */
@@ -332,12 +332,12 @@ void FLASH_UnlockBank2(void)
   FLASH->KEYR2 = FLASH_KEY2;
 
 }
-#endif /* STM32F10X_XL */
+#endif /* AIR32F10X_XL */
 
 /**
   * @brief  Locks the FLASH Program Erase Controller.
-  * @note   This function can be used for all STM32F10x devices.
-  *         - For STM32F10X_XL devices this function Locks Bank1 and Bank2.
+  * @note   This function can be used for all AIR32F103 devices.
+  *         - For AIR32F10X_XL devices this function Locks Bank1 and Bank2.
   *         - For all other devices it Locks Bank1 and it is equivalent 
   *           to FLASH_LockBank1 function.
   * @param  None
@@ -348,16 +348,16 @@ void FLASH_Lock(void)
   /* Set the Lock Bit to lock the FPEC and the CR of  Bank1 */
   FLASH->CR |= CR_LOCK_Set;
 
-#ifdef STM32F10X_XL
+#ifdef AIR32F10X_XL
   /* Set the Lock Bit to lock the FPEC and the CR of  Bank2 */
   FLASH->CR2 |= CR_LOCK_Set;
-#endif /* STM32F10X_XL */
+#endif /* AIR32F10X_XL */
 }
 
 /**
   * @brief  Locks the FLASH Bank1 Program Erase Controller.
-  * @note   this function can be used for all STM32F10x devices.
-  *         - For STM32F10X_XL devices this function Locks Bank1.
+  * @note   this function can be used for all AIR32F103 devices.
+  *         - For AIR32F10X_XL devices this function Locks Bank1.
   *         - For all other devices it Locks Bank1 and it is equivalent 
   *           to FLASH_Lock function.
   * @param  None
@@ -369,10 +369,10 @@ void FLASH_LockBank1(void)
   FLASH->CR |= CR_LOCK_Set;
 }
 
-#ifdef STM32F10X_XL
+#ifdef AIR32F10X_XL
 /**
   * @brief  Locks the FLASH Bank2 Program Erase Controller.
-  * @note   This function can be used only for STM32F10X_XL density devices.
+  * @note   This function can be used only for AIR32F10X_XL density devices.
   * @param  None
   * @retval None
   */
@@ -381,11 +381,11 @@ void FLASH_LockBank2(void)
   /* Set the Lock Bit to lock the FPEC and the CR of  Bank2 */
   FLASH->CR2 |= CR_LOCK_Set;
 }
-#endif /* STM32F10X_XL */
+#endif /* AIR32F10X_XL */
 
 /**
   * @brief  Erases a specified FLASH page.
-  * @note   This function can be used for all STM32F10x devices.
+  * @note   This function can be used for all AIR32F103 devices.
   * @param  Page_Address: The page address to be erased.
   * @retval FLASH Status: The returned value can be: FLASH_BUSY, FLASH_ERROR_PG,
   *         FLASH_ERROR_WRP, FLASH_COMPLETE or FLASH_TIMEOUT.
@@ -396,7 +396,7 @@ FLASH_Status FLASH_ErasePage(uint32_t Page_Address)
   /* Check the parameters */
   assert_param(IS_FLASH_ADDRESS(Page_Address));
 
-#ifdef STM32F10X_XL
+#ifdef AIR32F10X_XL
   if(Page_Address < FLASH_BANK1_END_ADDRESS)  
   {
     /* Wait for last operation to be completed */
@@ -450,7 +450,7 @@ FLASH_Status FLASH_ErasePage(uint32_t Page_Address)
     /* Disable the PER Bit */
     FLASH->CR &= CR_PER_Reset;
   }
-#endif /* STM32F10X_XL */
+#endif /* AIR32F10X_XL */
 
   /* Return the Erase Status */
   return status;
@@ -458,7 +458,7 @@ FLASH_Status FLASH_ErasePage(uint32_t Page_Address)
 
 /**
   * @brief  Erases all FLASH pages.
-  * @note   This function can be used for all STM32F10x devices.
+  * @note   This function can be used for all AIR32F103 devices.
   * @param  None
   * @retval FLASH Status: The returned value can be: FLASH_ERROR_PG,
   *         FLASH_ERROR_WRP, FLASH_COMPLETE or FLASH_TIMEOUT.
@@ -467,7 +467,7 @@ FLASH_Status FLASH_EraseAllPages(void)
 {
   FLASH_Status status = FLASH_COMPLETE;
 
-#ifdef STM32F10X_XL
+#ifdef AIR32F10X_XL
   /* Wait for last operation to be completed */
   status = FLASH_WaitForLastBank1Operation(EraseTimeout);
   
@@ -510,7 +510,7 @@ FLASH_Status FLASH_EraseAllPages(void)
     /* Disable the MER Bit */
     FLASH->CR &= CR_MER_Reset;
   }
-#endif /* STM32F10X_XL */
+#endif /* AIR32F10X_XL */
 
   /* Return the Erase Status */
   return status;
@@ -518,8 +518,8 @@ FLASH_Status FLASH_EraseAllPages(void)
 
 /**
   * @brief  Erases all Bank1 FLASH pages.
-  * @note   This function can be used for all STM32F10x devices.
-  *         - For STM32F10X_XL devices this function erases all Bank1 pages.
+  * @note   This function can be used for all AIR32F103 devices.
+  *         - For AIR32F10X_XL devices this function erases all Bank1 pages.
   *         - For all other devices it erases all Bank1 pages and it is equivalent 
   *           to FLASH_EraseAllPages function.
   * @param  None
@@ -548,10 +548,10 @@ FLASH_Status FLASH_EraseAllBank1Pages(void)
   return status;
 }
 
-#ifdef STM32F10X_XL
+#ifdef AIR32F10X_XL
 /**
   * @brief  Erases all Bank2 FLASH pages.
-  * @note   This function can be used only for STM32F10x_XL density devices.
+  * @note   This function can be used only for AIR32F103_XL density devices.
   * @param  None
   * @retval FLASH Status: The returned value can be: FLASH_ERROR_PG,
   *         FLASH_ERROR_WRP, FLASH_COMPLETE or FLASH_TIMEOUT.
@@ -577,12 +577,82 @@ FLASH_Status FLASH_EraseAllBank2Pages(void)
   /* Return the Erase Status */
   return status;
 }
-#endif /* STM32F10X_XL */
+#endif /* AIR32F10X_XL */
+#if defined(__CC_ARM) 
+__ASM void SetStrt(void)
+{
+	LDR 	R0, [PC,#0]
+	LDR 	R1, [R0,#16]
+	LDR 	R1, [R0,#32]
+	LDR		R0, =0x40022010
+	LDR		R1, =0x60
+	STR     R1,[R0]
+	NOP
+	NOP
+	NOP
+	NOP
+	NOP
+	NOP	
+FLAGLABLE
+	LDR		R1, =0x4002200C
+	LDR		R2, [R1]
+	AND 	R2,	#0x01
+	CMP		R2,	#0x00
+	BNE		FLAGLABLE
+	BX 		lr
+}
+#elif defined(__ICCARM__)
+void SetStrt(void)
+{
+    __ASM("MOV     	R0, PC\n"
+          "LDR 		R1, [R0,#16]\n"
+          "LDR 		R1, [R0,#32]\n"
+          "LDR		R0, =0x40022010\n"
+          "LDR		R1, =0x60\n"
+          "STR     	R1,[R0]\n"
+          "NOP\n"
+          "NOP\n"
+          "NOP\n"
+          "NOP\n"
+          "NOP\n"
+          "NOP\n"
+          "FLAGLABLE:\n"
+          "LDR		R1, =0x4002200C\n"
+          "LDR		R2, [R1]\n"
+          "AND 		R2, R2, #0x01\n"
+          "CMP		R2, #0x00\n"
+          "BNE		FLAGLABLE\n"
+          "BX 		lr");
+}
+#elif defined(__GNUC__)
+__attribute__((noinline)) void SetStrt(void)
+{
+  __ASM ( "MOV     R0, PC\n"
+          "LDR 	  R1, [R0,#16]\n"
+          "LDR    R1, [R0,#32]\n"
+          "LDR    R0, =0x40022010\n"
+          "LDR    R1, =0x60\n"
+          "STR    R1,[R0]\n"
+          "NOP\n"
+          "NOP\n"
+          "NOP\n"
+          "NOP\n"
+          "NOP\n"
+          "NOP\n"
+          "FLAGLABLE:\n"
+          "LDR    R1, =0x4002200C\n"
+          "LDR    R2, [R1]\n"
+          "AND    R2, #0x01\n"
+          "CMP    R2, #0x00\n"
+          "BNE    FLAGLABLE\n"
+          "BX     lr");
+}
 
+#endif
 /**
   * @brief  Erases the FLASH option bytes.
   * @note   This functions erases all option bytes except the Read protection (RDP). 
-  * @note   This function can be used for all STM32F10x devices.
+  * @note   This function can be used for all AIR32F103 devices.
   * @param  None
   * @retval FLASH Status: The returned value can be: FLASH_ERROR_PG,
   *         FLASH_ERROR_WRP, FLASH_COMPLETE or FLASH_TIMEOUT.
@@ -608,11 +678,11 @@ FLASH_Status FLASH_EraseOptionBytes(void)
     FLASH->OPTKEYR = FLASH_KEY2;
     
     /* if the previous operation is completed, proceed to erase the option bytes */
-    FLASH->CR |= CR_OPTER_Set;
-    FLASH->CR |= CR_STRT_Set;
-    /* Wait for last operation to be completed */
-    status = FLASH_WaitForLastOperation(EraseTimeout);
-    
+    // FLASH->CR |= CR_OPTER_Set;
+    // FLASH->CR |= CR_STRT_Set;
+    // /* Wait for last operation to be completed */
+    // status = FLASH_WaitForLastOperation(EraseTimeout);
+    SetStrt();
     if(status == FLASH_COMPLETE)
     {
       /* if the erase operation is completed, disable the OPTER Bit */
@@ -647,7 +717,7 @@ FLASH_Status FLASH_EraseOptionBytes(void)
 
 /**
   * @brief  Programs a word at a specified address.
-  * @note   This function can be used for all STM32F10x devices.
+  * @note   This function can be used for all AIR32F103 devices.
   * @param  Address: specifies the address to be programmed.
   * @param  Data: specifies the data to be programmed.
   * @retval FLASH Status: The returned value can be: FLASH_ERROR_PG,
@@ -661,7 +731,7 @@ FLASH_Status FLASH_ProgramWord(uint32_t Address, uint32_t Data)
   /* Check the parameters */
   assert_param(IS_FLASH_ADDRESS(Address));
 
-#ifdef STM32F10X_XL
+#ifdef AIR32F10X_XL
   if(Address < FLASH_BANK1_END_ADDRESS - 2)
   { 
     /* Wait for last operation to be completed */
@@ -713,7 +783,7 @@ FLASH_Status FLASH_ProgramWord(uint32_t Address, uint32_t Data)
       /* Wait for last operation to be completed */
       status = FLASH_WaitForLastBank1Operation(ProgramTimeout);
       
-	  /* Disable the PG Bit */
+    /* Disable the PG Bit */
       FLASH->CR &= CR_PG_Reset;
     }
     else
@@ -816,7 +886,7 @@ FLASH_Status FLASH_ProgramWord(uint32_t Address, uint32_t Data)
       FLASH->CR &= CR_PG_Reset;
     }
   }         
-#endif /* STM32F10X_XL */
+#endif /* AIR32F10X_XL */
    
   /* Return the Program Status */
   return status;
@@ -824,7 +894,7 @@ FLASH_Status FLASH_ProgramWord(uint32_t Address, uint32_t Data)
 
 /**
   * @brief  Programs a half word at a specified address.
-  * @note   This function can be used for all STM32F10x devices.
+  * @note   This function can be used for all AIR32F103 devices.
   * @param  Address: specifies the address to be programmed.
   * @param  Data: specifies the data to be programmed.
   * @retval FLASH Status: The returned value can be: FLASH_ERROR_PG,
@@ -836,7 +906,7 @@ FLASH_Status FLASH_ProgramHalfWord(uint32_t Address, uint16_t Data)
   /* Check the parameters */
   assert_param(IS_FLASH_ADDRESS(Address));
 
-#ifdef STM32F10X_XL
+#ifdef AIR32F10X_XL
   /* Wait for last operation to be completed */
   status = FLASH_WaitForLastOperation(ProgramTimeout);
   
@@ -886,7 +956,7 @@ FLASH_Status FLASH_ProgramHalfWord(uint32_t Address, uint16_t Data)
     /* Disable the PG Bit */
     FLASH->CR &= CR_PG_Reset;
   } 
-#endif  /* STM32F10X_XL */
+#endif  /* AIR32F10X_XL */
   
   /* Return the Program Status */
   return status;
@@ -894,7 +964,7 @@ FLASH_Status FLASH_ProgramHalfWord(uint32_t Address, uint16_t Data)
 
 /**
   * @brief  Programs a half word at a specified Option Byte Data address.
-  * @note   This function can be used for all STM32F10x devices.
+  * @note   This function can be used for all AIR32F103 devices.
   * @param  Address: specifies the address to be programmed.
   *   This parameter can be 0x1FFFF804 or 0x1FFFF806. 
   * @param  Data: specifies the data to be programmed.
@@ -931,7 +1001,7 @@ FLASH_Status FLASH_ProgramOptionByteData(uint32_t Address, uint8_t Data)
 
 /**
   * @brief  Write protects the desired pages
-  * @note   This function can be used for all STM32F10x devices.
+  * @note   This function can be used for all AIR32F103 devices.
   * @param  FLASH_Pages: specifies the address of the pages to be write protected.
   *   This parameter can be:
   *     @arg For @b STM32_Low-density_devices: value between FLASH_WRProt_Pages0to3 and FLASH_WRProt_Pages28to31  
@@ -1015,7 +1085,7 @@ FLASH_Status FLASH_EnableWriteProtection(uint32_t FLASH_Pages)
   * @brief  Enables or disables the read out protection.
   * @note   If the user has already programmed the other option bytes before calling 
   *   this function, he must re-program them since this function erases all option bytes.
-  * @note   This function can be used for all STM32F10x devices.
+  * @note   This function can be used for all AIR32F103 devices.
   * @param  Newstate: new state of the ReadOut Protection.
   *   This parameter can be: ENABLE or DISABLE.
   * @retval FLASH Status: The returned value can be: FLASH_ERROR_PG,
@@ -1078,7 +1148,7 @@ FLASH_Status FLASH_ReadOutProtection(FunctionalState NewState)
 
 /**
   * @brief  Programs the FLASH User Option Byte: IWDG_SW / RST_STOP / RST_STDBY.
-  * @note   This function can be used for all STM32F10x devices.
+  * @note   This function can be used for all AIR32F103 devices.
   * @param  OB_IWDG: Selects the IWDG mode
   *   This parameter can be one of the following values:
   *     @arg OB_IWDG_SW: Software IWDG selected
@@ -1129,10 +1199,10 @@ FLASH_Status FLASH_UserOptionByteConfig(uint16_t OB_IWDG, uint16_t OB_STOP, uint
   return status;
 }
 
-#ifdef STM32F10X_XL
+#ifdef AIR32F10X_XL
 /**
   * @brief  Configures to boot from Bank1 or Bank2.  
-  * @note   This function can be used only for STM32F10x_XL density devices.
+  * @note   This function can be used only for AIR32F103_XL density devices.
   * @param  FLASH_BOOT: select the FLASH Bank to boot from.
   *   This parameter can be one of the following values:
   *     @arg FLASH_BOOT_Bank1: At startup, if boot pins are set in boot from user Flash
@@ -1183,11 +1253,11 @@ FLASH_Status FLASH_BootConfig(uint16_t FLASH_BOOT)
   /* Return the Option Byte program Status */
   return status;
 }
-#endif /* STM32F10X_XL */
+#endif /* AIR32F10X_XL */
 
 /**
   * @brief  Returns the FLASH User Option Bytes values.
-  * @note   This function can be used for all STM32F10x devices.
+  * @note   This function can be used for all AIR32F103 devices.
   * @param  None
   * @retval The FLASH User Option Bytes values:IWDG_SW(Bit0), RST_STOP(Bit1)
   *         and RST_STDBY(Bit2).
@@ -1200,7 +1270,7 @@ uint32_t FLASH_GetUserOptionByte(void)
 
 /**
   * @brief  Returns the FLASH Write Protection Option Bytes Register value.
-  * @note   This function can be used for all STM32F10x devices.
+  * @note   This function can be used for all AIR32F103 devices.
   * @param  None
   * @retval The FLASH Write Protection  Option Bytes Register value
   */
@@ -1212,7 +1282,7 @@ uint32_t FLASH_GetWriteProtectionOptionByte(void)
 
 /**
   * @brief  Checks whether the FLASH Read Out Protection Status is set or not.
-  * @note   This function can be used for all STM32F10x devices.
+  * @note   This function can be used for all AIR32F103 devices.
   * @param  None
   * @retval FLASH ReadOut Protection Status(SET or RESET)
   */
@@ -1232,7 +1302,7 @@ FlagStatus FLASH_GetReadOutProtectionStatus(void)
 
 /**
   * @brief  Checks whether the FLASH Prefetch Buffer status is set or not.
-  * @note   This function can be used for all STM32F10x devices.
+  * @note   This function can be used for all AIR32F103 devices.
   * @param  None
   * @retval FLASH Prefetch Buffer Status (SET or RESET).
   */
@@ -1254,8 +1324,8 @@ FlagStatus FLASH_GetPrefetchBufferStatus(void)
 
 /**
   * @brief  Enables or disables the specified FLASH interrupts.
-  * @note   This function can be used for all STM32F10x devices.
-  *         - For STM32F10X_XL devices, enables or disables the specified FLASH interrupts
+  * @note   This function can be used for all AIR32F103 devices.
+  *         - For AIR32F10X_XL devices, enables or disables the specified FLASH interrupts
               for Bank1 and Bank2.
   *         - For other devices it enables or disables the specified FLASH interrupts for Bank1.
   * @param  FLASH_IT: specifies the FLASH interrupt sources to be enabled or disabled.
@@ -1268,7 +1338,7 @@ FlagStatus FLASH_GetPrefetchBufferStatus(void)
   */
 void FLASH_ITConfig(uint32_t FLASH_IT, FunctionalState NewState)
 {
-#ifdef STM32F10X_XL
+#ifdef AIR32F10X_XL
   /* Check the parameters */
   assert_param(IS_FLASH_IT(FLASH_IT)); 
   assert_param(IS_FUNCTIONAL_STATE(NewState));
@@ -1314,13 +1384,13 @@ void FLASH_ITConfig(uint32_t FLASH_IT, FunctionalState NewState)
     /* Disable the interrupt sources */
     FLASH->CR &= ~(uint32_t)FLASH_IT;
   }
-#endif /* STM32F10X_XL */
+#endif /* AIR32F10X_XL */
 }
 
 /**
   * @brief  Checks whether the specified FLASH flag is set or not.
-  * @note   This function can be used for all STM32F10x devices.
-  *         - For STM32F10X_XL devices, this function checks whether the specified 
+  * @note   This function can be used for all AIR32F103 devices.
+  *         - For AIR32F10X_XL devices, this function checks whether the specified 
   *           Bank1 or Bank2 flag is set or not.
   *         - For other devices, it checks whether the specified Bank1 flag is 
   *           set or not.
@@ -1337,7 +1407,7 @@ FlagStatus FLASH_GetFlagStatus(uint32_t FLASH_FLAG)
 {
   FlagStatus bitstatus = RESET;
 
-#ifdef STM32F10X_XL
+#ifdef AIR32F10X_XL
   /* Check the parameters */
   assert_param(IS_FLASH_GET_FLAG(FLASH_FLAG)) ;
   if(FLASH_FLAG == FLASH_FLAG_OPTERR) 
@@ -1401,7 +1471,7 @@ FlagStatus FLASH_GetFlagStatus(uint32_t FLASH_FLAG)
       bitstatus = RESET;
     }
   }
-#endif /* STM32F10X_XL */
+#endif /* AIR32F10X_XL */
 
   /* Return the new state of FLASH_FLAG (SET or RESET) */
   return bitstatus;
@@ -1409,8 +1479,8 @@ FlagStatus FLASH_GetFlagStatus(uint32_t FLASH_FLAG)
 
 /**
   * @brief  Clears the FLASH's pending flags.
-  * @note   This function can be used for all STM32F10x devices.
-  *         - For STM32F10X_XL devices, this function clears Bank1 or Bank2�s pending flags
+  * @note   This function can be used for all AIR32F103 devices.
+  *         - For AIR32F10X_XL devices, this function clears Bank1 or Bank2�s pending flags
   *         - For other devices, it clears Bank1�s pending flags.
   * @param  FLASH_FLAG: specifies the FLASH flags to clear.
   *   This parameter can be any combination of the following values:         
@@ -1421,7 +1491,7 @@ FlagStatus FLASH_GetFlagStatus(uint32_t FLASH_FLAG)
   */
 void FLASH_ClearFlag(uint32_t FLASH_FLAG)
 {
-#ifdef STM32F10X_XL
+#ifdef AIR32F10X_XL
   /* Check the parameters */
   assert_param(IS_FLASH_CLEAR_FLAG(FLASH_FLAG)) ;
 
@@ -1442,12 +1512,12 @@ void FLASH_ClearFlag(uint32_t FLASH_FLAG)
   
   /* Clear the flags */
   FLASH->SR = FLASH_FLAG;
-#endif /* STM32F10X_XL */
+#endif /* AIR32F10X_XL */
 }
 
 /**
   * @brief  Returns the FLASH Status.
-  * @note   This function can be used for all STM32F10x devices, it is equivalent
+  * @note   This function can be used for all AIR32F103 devices, it is equivalent
   *         to FLASH_GetBank1Status function.
   * @param  None
   * @retval FLASH Status: The returned value can be: FLASH_BUSY, FLASH_ERROR_PG,
@@ -1485,7 +1555,7 @@ FLASH_Status FLASH_GetStatus(void)
 
 /**
   * @brief  Returns the FLASH Bank1 Status.
-  * @note   This function can be used for all STM32F10x devices, it is equivalent
+  * @note   This function can be used for all AIR32F103 devices, it is equivalent
   *         to FLASH_GetStatus function.
   * @param  None
   * @retval FLASH Status: The returned value can be: FLASH_BUSY, FLASH_ERROR_PG,
@@ -1521,10 +1591,10 @@ FLASH_Status FLASH_GetBank1Status(void)
   return flashstatus;
 }
 
-#ifdef STM32F10X_XL
+#ifdef AIR32F10X_XL
 /**
   * @brief  Returns the FLASH Bank2 Status.
-  * @note   This function can be used for STM32F10x_XL density devices.
+  * @note   This function can be used for AIR32F103_XL density devices.
   * @param  None
   * @retval FLASH Status: The returned value can be: FLASH_BUSY, FLASH_ERROR_PG,
   *        FLASH_ERROR_WRP or FLASH_COMPLETE
@@ -1558,12 +1628,12 @@ FLASH_Status FLASH_GetBank2Status(void)
   /* Return the Flash Status */
   return flashstatus;
 }
-#endif /* STM32F10X_XL */
+#endif /* AIR32F10X_XL */
 /**
   * @brief  Waits for a Flash operation to complete or a TIMEOUT to occur.
-  * @note   This function can be used for all STM32F10x devices, 
+  * @note   This function can be used for all AIR32F103 devices, 
   *         it is equivalent to FLASH_WaitForLastBank1Operation.
-  *         - For STM32F10X_XL devices this function waits for a Bank1 Flash operation
+  *         - For AIR32F10X_XL devices this function waits for a Bank1 Flash operation
   *           to complete or a TIMEOUT to occur.
   *         - For all other devices it waits for a Flash operation to complete 
   *           or a TIMEOUT to occur.
@@ -1593,7 +1663,7 @@ FLASH_Status FLASH_WaitForLastOperation(uint32_t Timeout)
 
 /**
   * @brief  Waits for a Flash operation on Bank1 to complete or a TIMEOUT to occur.
-  * @note   This function can be used for all STM32F10x devices, 
+  * @note   This function can be used for all AIR32F103 devices, 
   *         it is equivalent to FLASH_WaitForLastOperation.
   * @param  Timeout: FLASH programming Timeout
   * @retval FLASH Status: The returned value can be: FLASH_ERROR_PG,
@@ -1619,10 +1689,10 @@ FLASH_Status FLASH_WaitForLastBank1Operation(uint32_t Timeout)
   return status;
 }
 
-#ifdef STM32F10X_XL
+#ifdef AIR32F10X_XL
 /**
   * @brief  Waits for a Flash operation on Bank2 to complete or a TIMEOUT to occur.
-  * @note   This function can be used only for STM32F10x_XL density devices.
+  * @note   This function can be used only for AIR32F103_XL density devices.
   * @param  Timeout: FLASH programming Timeout
   * @retval FLASH Status: The returned value can be: FLASH_ERROR_PG,
   *         FLASH_ERROR_WRP, FLASH_COMPLETE or FLASH_TIMEOUT.
@@ -1646,7 +1716,7 @@ FLASH_Status FLASH_WaitForLastBank2Operation(uint32_t Timeout)
   /* Return the operation status */
   return status;
 }
-#endif /* STM32F10X_XL */
+#endif /* AIR32F10X_XL */
 
 /**
   * @}
