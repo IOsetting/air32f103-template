@@ -2,6 +2,13 @@
 #ifndef __AIR32F10x_CONF_H
 #define __AIR32F10x_CONF_H
 
+/* Set system clock speed in MHZ
+*  It will revert to HSI mode if not defined.
+*  Otherwise, will calculate the PLL multiplier (SYSCLK / HSE_VAL).
+*  If the multiplier is 1, then the PLL won't be used.
+*/
+#define SYSCLK_HSE      HSE(256)
+
 /* Includes ------------------------------------------------------------------*/
 /* Uncomment/Comment the line below to enable/disable peripheral header file inclusion */
 #include "air32f10x_adc.h"
