@@ -9,7 +9,6 @@
 */
 #define SYSCLK_HSE      HSE(216)
 
-
 /* Includes ------------------------------------------------------------------*/
 /* Uncomment/Comment the line below to enable/disable peripheral header file inclusion */
 #include "air32f10x_adc.h"

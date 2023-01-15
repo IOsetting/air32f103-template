@@ -1,8 +1,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include "debug.h"
 #include "air32f10x.h"
+#include "debug.h"
 
 void GPIO_Configuration(void)
 {
