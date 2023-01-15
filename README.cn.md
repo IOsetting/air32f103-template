@@ -31,12 +31,15 @@
 │   │   ├── lib
 │   │   │   └── cryptlib
 │   │   └── src                   # .c源文件
-│   ├── CMSIS                   # Coretex M 核心外设层源文件
+│   ├── CMSIS
+│   │   ├── Core                # CMSIS Coretex M 核心外设层头文件
+│   │   └── DSP                 # CMSIS DSP 函数库
 │   ├── Debug                   # delay和printf支持
 │   ├── DeviceSupport           # AIR32F103的gcc arm startup文件
 │   │   └── startup
 │   │       └── arm-gcc
 │   ├── FreeRTOS                # FreeRTOS 库代码
+│   ├── Helix                   # Helix MP3 解码库
 │   └── LDScripts               # 连接脚本
 ├── Makefile
 ├── Misc
@@ -87,20 +90,30 @@ BUILD_DIR 		= Build
 
 ##### Options #####
 
+# Enable printf float %f support, y:yes, n:no
+ENABLE_PRINTF_FLOAT	?= y
 # 是否使用 FreeRTOS, y:yes, n:no
 USE_FREERTOS	?= n
-# 烧录工具, jlink 或 stlink
+# 是否使用 CMSIS DSP 函数库, y:yes, n:no
+USE_DSP			?= n
+# 是否使用 Helix MP3 解码库, y:yes, n:no
+USE_HELIX		?= n
+# 烧录工具, jlink, stlink, cmsis-dap, pyocd
 FLASH_PROGRM    ?= stlink
 
 ##### Toolchains #######
 # 根据本地环境, 设置工具链路径
-ARM_TOOCHAIN 	?= /opt/gcc-arm/gcc-arm-11.2-2022.02-x86_64-arm-none-eabi/bin
-
-# st-flash 可执行文件路径
+ARM_TOOCHAIN 	?= /opt/gcc-arm/arm-gnu-toolchain-12.2.rel1-x86_64-arm-none-eabi/bin
+# st-flash 路径
 ST_FLASH		?= st-flash
-# JLinkExe 可执行文件路径和设备类型
+# JLinkExe 路径
 JLINKEXE		?= /opt/SEGGER/JLink/JLinkExe
 JLINK_DEVICE	?= STM32F103CB
+# OpenOCD 路径
+OPENOCD			?= openocd
+# PyOCD 路径和设备型号
+PYOCD_EXE		?= pyocd
+PYOCD_DEVICE	?= air32f103cb
 
 ##### Paths ############
 

@@ -29,14 +29,16 @@ A build template for projects using AIR32F103x MCU and GNU Arm Embedded Toolchai
 │   ├── AIR32F10xLib            # AIR32F103 Peripheral library
 │   │   ├── inc                 
 │   │   ├── lib
-│   │   │   └── cryptlib
-│   │   └── src                 
-│   ├── CMSIS                   # Coretex M core files
+│   │   └── src  
+│   ├── CMSIS
+│   │   ├── Core                # CMSIS Coretex M core files
+│   │   └── DSP                 # CMSIS DSP library
 │   ├── Debug                   # For delay and printf support
 │   ├── DeviceSupport           # gcc arm startup files
 │   │   └── startup
 │   │       └── arm-gcc
 │   ├── FreeRTOS                # FreeRTOS library
+│   ├── Helix                   # Helix MP3 decoder library
 │   └── LDScripts               # Link scripts
 ├── Makefile
 ├── Misc
@@ -91,12 +93,16 @@ BUILD_DIR 		= Build
 ENABLE_PRINTF_FLOAT	?= y
 # Build with FreeRTOS, y:yes, n:no
 USE_FREERTOS	?= n
+# Build with CMSIS DSP functions, y:yes, n:no
+USE_DSP			?= n
+# Build with Helix MP3 lib, y:yes, n:no
+USE_HELIX		?= n
 # Programmer, jlink, stlink, cmsis-dap, pyocd
 FLASH_PROGRM    ?= stlink
 
 ##### Toolchains #######
 
-ARM_TOOCHAIN 	?= /opt/gcc-arm/arm-gnu-toolchain-12.2.mpacbti-bet1-x86_64-arm-none-eabi/bin
+ARM_TOOCHAIN 	?= /opt/gcc-arm/arm-gnu-toolchain-12.2.rel1-x86_64-arm-none-eabi/bin
 # path to st-flash
 ST_FLASH		?= st-flash
 # path to JLinkExe

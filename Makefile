@@ -54,10 +54,12 @@ ADIRS	:= User
 AFILES	:= Libraries/DeviceSupport/startup/arm-gcc/startup_air32f10x.s
 
 # Include paths
-INCLUDES	:= Libraries/CMSIS/Core/Include \
+INCLUDES	:= User \
+			Libraries/CMSIS/Core/Include \
 			Libraries/AIR32F10xLib/inc \
 			Libraries/Debug \
-			User
+
+##### Optional Libraries ############
 
 ifeq ($(USE_FREERTOS),y)
 CDIRS		+= Libraries/FreeRTOS \
