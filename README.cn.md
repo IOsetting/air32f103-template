@@ -31,7 +31,7 @@
 │   │   ├── lib
 │   │   │   └── cryptlib
 │   │   └── src                   # .c源文件
-│   ├── CORE                    # Coretex M 核心外设层源文件
+│   ├── CMSIS                   # Coretex M 核心外设层源文件
 │   ├── Debug                   # delay和printf支持
 │   ├── DeviceSupport           # AIR32F103的gcc arm startup文件
 │   │   └── startup

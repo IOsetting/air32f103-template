@@ -31,7 +31,7 @@ A build template for projects using AIR32F103x MCU and GNU Arm Embedded Toolchai
 │   │   ├── lib
 │   │   │   └── cryptlib
 │   │   └── src                 
-│   ├── CORE                    # Coretex M core files
+│   ├── CMSIS                   # Coretex M core files
 │   ├── Debug                   # For delay and printf support
 │   ├── DeviceSupport           # gcc arm startup files
 │   │   └── startup

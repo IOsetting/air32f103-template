@@ -41,7 +41,6 @@ LIB_FLAGS       = USE_STDPERIPH_DRIVER
 
 # C source folders
 CDIRS	:= User \
-		Libraries/CORE \
 		Libraries/AIR32F10xLib/src \
 		Libraries/Debug
 # C source files (if there are any single ones)
@@ -53,7 +52,7 @@ ADIRS	:= User
 AFILES	:= Libraries/DeviceSupport/startup/arm-gcc/startup_air32f10x.s
 
 # Include paths
-INCLUDES	:= Libraries/CORE \
+INCLUDES	:= Libraries/CMSIS/Include \
 			Libraries/AIR32F10xLib/inc \
 			Libraries/Debug \
 			User
