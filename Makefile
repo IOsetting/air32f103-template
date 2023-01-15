@@ -10,6 +10,8 @@ BUILD_DIR 		= Build
 ENABLE_PRINTF_FLOAT	?= y
 # Build with FreeRTOS, y:yes, n:no
 USE_FREERTOS	?= n
+# Build with CMSIS DSP functions, y:yes, n:no
+USE_DSP			?= y
 # Build with Helix MP3 lib, y:yes, n:no
 USE_HELIX		?= n
 # Programmer, jlink, stlink, cmsis-dap, pyocd
@@ -52,7 +54,7 @@ ADIRS	:= User
 AFILES	:= Libraries/DeviceSupport/startup/arm-gcc/startup_air32f10x.s
 
 # Include paths
-INCLUDES	:= Libraries/CMSIS/Include \
+INCLUDES	:= Libraries/CMSIS/Core/Include \
 			Libraries/AIR32F10xLib/inc \
 			Libraries/Debug \
 			User
@@ -65,6 +67,28 @@ CFILES		+= Libraries/FreeRTOS/portable/MemMang/heap_4.c
 
 INCLUDES	+= Libraries/FreeRTOS/include \
 			Libraries/FreeRTOS/portable/GCC/ARM_CM3
+endif
+
+ifeq ($(USE_DSP),y)
+CFILES 		+= Libraries/CMSIS/DSP/Source/BasicMathFunctions/BasicMathFunctions.c \
+		Libraries/CMSIS/DSP/Source/BayesFunctions/BayesFunctions.c \
+		Libraries/CMSIS/DSP/Source/CommonTables/CommonTables.c \
+		Libraries/CMSIS/DSP/Source/ComplexMathFunctions/ComplexMathFunctions.c \
+		Libraries/CMSIS/DSP/Source/ControllerFunctions/ControllerFunctions.c \
+		Libraries/CMSIS/DSP/Source/DistanceFunctions/DistanceFunctions.c \
+		Libraries/CMSIS/DSP/Source/FastMathFunctions/FastMathFunctions.c \
+		Libraries/CMSIS/DSP/Source/FilteringFunctions/FilteringFunctions.c \
+		Libraries/CMSIS/DSP/Source/InterpolationFunctions/InterpolationFunctions.c \
+		Libraries/CMSIS/DSP/Source/MatrixFunctions/MatrixFunctions.c \
+		Libraries/CMSIS/DSP/Source/QuaternionMathFunctions/QuaternionMathFunctions.c \
+		Libraries/CMSIS/DSP/Source/StatisticsFunctions/StatisticsFunctions.c \
+		Libraries/CMSIS/DSP/Source/SupportFunctions/SupportFunctions.c \
+		Libraries/CMSIS/DSP/Source/SVMFunctions/SVMFunctions.c \
+		Libraries/CMSIS/DSP/Source/TransformFunctions/TransformFunctions.c
+
+INCLUDES	+= Libraries/CMSIS/DSP/PrivateInclude \
+			Libraries/CMSIS/DSP/Include
+
 endif
 
 ifeq ($(USE_HELIX),y)
