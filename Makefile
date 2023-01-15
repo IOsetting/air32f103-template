@@ -11,7 +11,7 @@ ENABLE_PRINTF_FLOAT	?= y
 # Build with FreeRTOS, y:yes, n:no
 USE_FREERTOS	?= n
 # Build with CMSIS DSP functions, y:yes, n:no
-USE_DSP			?= y
+USE_DSP			?= n
 # Build with Helix MP3 lib, y:yes, n:no
 USE_HELIX		?= n
 # Programmer, jlink, stlink, cmsis-dap, pyocd

@@ -6,18 +6,7 @@
 #include "arm_math.h"
 
 
-/** @addtogroup AT32F403A_periph_examples
-  * @{
-  */
-
-/** @addtogroup 403A_CORTEX_m4_cmsis_dsp CORTEX_m4_cmsis_dsp
-  * @{
-  */
-
 #define USE_STATIC_INIT
-
- /* Global defines */
-
 #define TEST_LENGTH_SAMPLES   (20*4)
 
 /* List of Marks scored by 20 students for 4 subjects */
