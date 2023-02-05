@@ -8,12 +8,14 @@
 
 /**
  * flash start address, must not smaller than the size of this code
- * 0X08008000 = 32K, 0X08010000 = 64K, 0X08020000 = 128K
+ * 0X08008000 = 32K, 0X08010000 = 64K, 0X08020000 = 128K, 0X08040000 = 256K
+ * 
+ * If you want to test the unlocked 256K flash, change this to 0X0803F400, which is close to the end of 256K
 */
 #define FLASH_ADDR 0X08008000
 
 /**
- * Data size > 2048 bytes
+ * Data size slightly larger than one page(2048 bytes)
 */
 const uint8_t test_text[] = 
     "Shall I compare thee to a summer's day? Thou art more lovely and more temperate. Rough winds do shake the darling buds of May, "
@@ -53,9 +55,10 @@ int main(void)
            (float)clocks.SYSCLK_Frequency / 1000000, (float)clocks.HCLK_Frequency / 1000000,
            (float)clocks.PCLK1_Frequency / 1000000, (float)clocks.PCLK2_Frequency / 1000000, 
 		   (float)clocks.ADCCLK_Frequency / 1000000);
-    printf("AIR32F103 Flash EEPROM Test\n");
+    printf("AIR32F103 Flash EEPROM Test, Write To Address: 0x%08X\n", FLASH_ADDR);
 
     AIRFLASH_Write(FLASH_ADDR, (uint16_t *)test_text, size16);   // Write to flash
+    printf("\r\nRead from 0x%08X\r\n", FLASH_ADDR);
     memset(buff, 0x0000, size16);
     AIRFLASH_Read(FLASH_ADDR, (uint16_t *)buff, size16);         // Read from flash
     for (i = 0; i < size16; i++)

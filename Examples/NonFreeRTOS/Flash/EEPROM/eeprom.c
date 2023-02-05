@@ -1,11 +1,11 @@
 #include <stdio.h>
 #include "eeprom.h"
 
-#define AIR32F103_PAGE_BYTES 2048
-uint16_t AIRFLASH_BUF[AIR32F103_PAGE_BYTES / 2]; // 2k bytes most
+uint16_t AIRFLASH_BUF[AIR32F103_PAGE_BYTES / 2];
 
 /**
- * Read halfword/2-byte from address, address should be an even number
+ * Read halfword/2-byte from address
+ * addr: address should be an integer multiple of 2
 */
 uint16_t AIRFLASH_ReadHalfWord(uint32_t addr)
 {
@@ -13,7 +13,8 @@ uint16_t AIRFLASH_ReadHalfWord(uint32_t addr)
 }
 
 /**
- * Read size of halfword/2-bytes from address, address should be an even number
+ * Read size of halfword/2-bytes from address
+ * addr: address should be an integer multiple of 2
 */
 void AIRFLASH_Read(uint32_t addr, uint16_t *pBuf, uint16_t size)
 {
@@ -25,15 +26,8 @@ void AIRFLASH_Read(uint32_t addr, uint16_t *pBuf, uint16_t size)
     }
 }
 
-#if AIR32F103_FLASH_WREN
-
-void Test_Write(uint32_t addr, uint16_t data)
-{
-    AIRFLASH_Write(addr, &data, 1);
-}
-
 /**
- * Write to flash without check
+ * Write to flash without check, for local use
 */
 void AIRFLASH_Write_NoCheck(uint32_t addr, uint16_t *pBuf, uint16_t size)
 {
@@ -47,7 +41,7 @@ void AIRFLASH_Write_NoCheck(uint32_t addr, uint16_t *pBuf, uint16_t size)
 
 /**
  * Write to flash
- * addr: address should be an even number
+ * addr: address should be an integer multiple of 2
  * size: size of halfword data
 */
 void AIRFLASH_Write(uint32_t addr, uint16_t *pBuf, uint16_t size)
@@ -58,15 +52,15 @@ void AIRFLASH_Write(uint32_t addr, uint16_t *pBuf, uint16_t size)
     uint16_t unitsToWrite;      // Number of units to be written in current page (by halfword)
     uint16_t i;
 
-    if (addr < AIR32F103_FLASH_BASE || (addr >= (AIR32F103_FLASH_BASE + 1024 * AIR32F103_FLASH_SIZE)))
+    if (addr < FLASH_BASE || (addr >= (FLASH_BASE + 1024 * 512)))
     {
-        // Skip invalid address
+        // Limit the address between [0x08000000, 0x08080000], skip invalid address
         return;
     }
     // Unlock
     FLASH_Unlock();
 
-    relativeAddr = addr - AIR32F103_FLASH_BASE;
+    relativeAddr = addr - FLASH_BASE;
     pages = relativeAddr / AIR32F103_PAGE_BYTES;
     unitPosInPage = (relativeAddr % AIR32F103_PAGE_BYTES) / 2;
     // How many units left in current page
@@ -80,7 +74,7 @@ void AIRFLASH_Write(uint32_t addr, uint16_t *pBuf, uint16_t size)
     while (1)
     {
         // Read out all data of this page
-        AIRFLASH_Read(pages * AIR32F103_PAGE_BYTES + AIR32F103_FLASH_BASE, AIRFLASH_BUF, AIR32F103_PAGE_BYTES / 2);
+        AIRFLASH_Read(pages * AIR32F103_PAGE_BYTES + FLASH_BASE, AIRFLASH_BUF, AIR32F103_PAGE_BYTES / 2);
         // If it contains non-0xff, erase the sector
         for (i = 0; i < unitsToWrite; i++)
         {
@@ -89,14 +83,14 @@ void AIRFLASH_Write(uint32_t addr, uint16_t *pBuf, uint16_t size)
         if (i < unitsToWrite)
         {
             // Erase this page
-            FLASH_ErasePage(pages * AIR32F103_PAGE_BYTES + AIR32F103_FLASH_BASE);
+            FLASH_ErasePage(pages * AIR32F103_PAGE_BYTES + FLASH_BASE);
             // Prepare data
             for (i = 0; i < unitsToWrite; i++)
             {
                 AIRFLASH_BUF[unitPosInPage + i] = pBuf[i];
             }
             // Write back to whole page
-            AIRFLASH_Write_NoCheck(pages * AIR32F103_PAGE_BYTES + AIR32F103_FLASH_BASE, AIRFLASH_BUF, AIR32F103_PAGE_BYTES / 2);
+            AIRFLASH_Write_NoCheck(pages * AIR32F103_PAGE_BYTES + FLASH_BASE, AIRFLASH_BUF, AIR32F103_PAGE_BYTES / 2);
         }
         else
         {
@@ -125,4 +119,3 @@ void AIRFLASH_Write(uint32_t addr, uint16_t *pBuf, uint16_t size)
     // Lock flash
     FLASH_Lock();
 }
-#endif
