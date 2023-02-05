@@ -66,7 +66,7 @@ System_Unlock:
 	ldr r3,=0x200183FF
 	str r3,[r2,#0x18] 		@ set register at 0x40016C18 to 0x200183FF, sram 32k -> 97k(!)
 	ldr r3,=0x0803FFFF
-	str r3,[r2,#0x1C] 		@ set register at 0x40016C19 to 0x0803FFFF, (for cbt6)flash 128k -> 256k(!)
+	str r3,[r2,#0x1C] 		@ set register at 0x40016C1C to 0x0803FFFF, (for cbt6)flash 128k -> 256k(!)
 	ldr r4,=0x4002228c
 	ldr r5,=0xa5a5a5a5
 	str r5,[r4] 			@ set register at 0x4002228c to 0xa5a5a5a5, unlock QSPI
