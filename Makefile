@@ -27,11 +27,13 @@ ARM_TOOCHAIN 	?= /opt/gcc-arm/arm-gnu-toolchain-12.2.rel1-x86_64-arm-none-eabi/b
 ST_FLASH		?= st-flash
 # path to JLinkExe
 JLINKEXE		?= /opt/SEGGER/JLink/JLinkExe
+# options: STM32F103CB(for CBT6), STM32F103RC(for CCT6 and RPT6)
 JLINK_DEVICE	?= STM32F103CB
 # path to OpenOCD
 OPENOCD			?= openocd
 # path to PyOCD
 PYOCD_EXE		?= pyocd
+# options: air32f103cb, air32f103cc, air32f103rp
 PYOCD_DEVICE	?= air32f103cb
 
 ##### Paths ############
