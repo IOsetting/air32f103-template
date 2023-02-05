@@ -50,24 +50,26 @@ defined in linker script */
 Reset_Handler:
     bl  System_Unlock
 
-/* Unlock the hidden 97KB RAM and QSPI*/
+/* Unlock the hidden 97KB RAM, 256KB Flash and QSPI*/
 /* We needs this before initializing the data or it'll trigger a hardfault */
 System_Unlock:
 	ldr r0,=0x400210F0
 	mov r1,#1
-	str r1,[r0]
+	str r1,[r0]				@ set register at 0x400210F0 to 1
 	ldr r2,=0x40016C00
 	ldr r3,=0xa7d93a86
-	str r3,[r2]
+	str r3,[r2]				@ set register at 0x40016C00 to 0xa7d93a86
 	ldr r3,=0xab12dfcd
-	str r3,[r2]
+	str r3,[r2]				@ set register at 0x40016C00 to 0xab12dfcd
 	ldr r3,=0xcded3526
-	str r3,[r2]
+	str r3,[r2]				@ set register at 0x40016C00 to 0xcded3526
 	ldr r3,=0x200183FF
-	str r3,[r2,#0x18] 		@ 32k -> 97k(!)
+	str r3,[r2,#0x18] 		@ set register at 0x40016C18 to 0x200183FF, sram 32k -> 97k(!)
+	ldr r3,=0x0803FFFF
+	str r3,[r2,#0x1C] 		@ set register at 0x40016C19 to 0x0803FFFF, (for cbt6)flash 128k -> 256k(!)
 	ldr r4,=0x4002228c
 	ldr r5,=0xa5a5a5a5
-	str r5,[r4] 			@//QSPI
+	str r5,[r4] 			@ set register at 0x4002228c to 0xa5a5a5a5, unlock QSPI
 
 /* Copy the data segment initializers from flash to SRAM */
     movs	r1, #0
