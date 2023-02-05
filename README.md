@@ -1,14 +1,25 @@
 # About
 
-A build template for projects using AIR32F103x MCU and GNU Arm Embedded Toolchain.
+* AIR32F103x / MH32F103Ax / MH2103Ax template project for GNU Arm Embedded Toolchain
+* Supported programmers: J-Link, STLink, DAPLink/PyOCD
+* Supported IDE: VSCode
 
-# AIR32F103x Types
+# AIR32F103x / MH32F103Ax / MH2103Ax Family
 
-| TYPE  | AIR32F103CBT6 | AIR32F103CCT6 | AIR32F103RPT6 |
+| TYPE  | AIR32F103CBT6<br>MH32F103ACBT6<br>MH2103ACBT6 | AIR32F103CCT6<br>MH32F103ACCT6<br>MH2103ACCT6 | AIR32F103RPT6<br>MH32F103ARPT6<br>MH2103ARPT6 |
 | ----- | ------------- | ------------- | ------------- |
 | Flash | 128K          | 256K          | 256K          |
 | RAM   | 32K           | 64K           | 96K           |
 | Pack  | lqfp48        | lqfp48        | lqfp64        |
+
+## Note
+
+* AIR32F103, MH32F103A and MH2103A series
+  * They are the same from the software aspect of view
+  * Manufactured by different vendors(packaging and testing) so the electrical characteristics should be different, be careful when using them in production.
+* There is high probability that all CBT6, CCT6 and RPT6 share the same core with 256K flash and 96K RAM
+  * The flash&RAM sizes are controlled by special registers
+  * The flash&RAM size hacks have been integrated into startup file. Thanks to @deividAlfa.
 
 ## Documents
 
@@ -119,6 +130,7 @@ PYOCD_DEVICE	?= air32f103cb
 # Link script for current chip
 LDSCRIPT		= Libraries/LDScripts/air32f103cbt6.ld
 ```
+
 ## 5. Compile and Flash
 
 ```bash
@@ -132,6 +144,6 @@ V=1 make
 make flash
 ```
 
-# Examples
+# Try Other Examples
 
 More examples can be found in Examples folder, copy and replace the files under User folder to try different examples.

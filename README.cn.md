@@ -10,6 +10,12 @@
 | RAM   | 32K           | 64K           | 96K           |
 | Pack  | lqfp48        | lqfp48        | lqfp64        |
 
+## 说明
+
+* CBT6, CCT6 and RPT6 很大概率使用的相同核心, 片上资源为 256K flash 和 96K RAM
+  * 不同型号的 flash 和 RAM 大小由特殊寄存器控制
+  * 对 flash 和 RAM 的解锁, 已经集成到启动文件. 感谢 @deividAlfa.
+
 ## MCU 资料
 
 [资料入口/WIKI](https://wiki.luatos.com/chips/air32f103/index.html) | [数据手册](https://cdn.openluat-luatcommunity.openluat.com/attachment/20220605164850945_AIR32F103%E8%8A%AF%E7%89%87%E6%95%B0%E6%8D%AE%E6%89%8B%E5%86%8C1.0.0.pdf) | [与STM32的差异](https://wiki.luatos.com/chips/air32f103/switchFromSxx.html) | [Keil SDK 示例代码](https://gitee.com/openLuat/luatos-soc-air32f103)
