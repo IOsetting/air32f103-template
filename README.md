@@ -15,11 +15,12 @@
 ## Note
 
 * AIR32F103, MH32F103A and MH2103A series
-  * They are the same from the software aspect of view
-  * Manufactured by different vendors(packaging and testing) so the electrical characteristics should be different, be careful when using them in production.
-* There is high probability that all CBT6, CCT6 and RPT6 share the same core with 256K flash and 96K RAM
-  * The flash&RAM sizes are controlled by special registers
-  * The flash&RAM size hacks have been integrated into startup file. Thanks to @deividAlfa.
+  * Supplied by different vendors, but they are the same from the software aspect of view.
+  * The electrical characteristics might be different, be careful when replacing them in production.
+* Unlock the hidden 97K RAM
+  * It's very likely the AIR32F103CBT6 you bought have 97K RAM - [Hedley Rainnie's blog](http://www.hrrzi.com/2022/12/the-air32f103.html)
+  * This also apply to AIR32F103CCT6 and AIR32F103RPT6.
+  * The hidden RAM can be unlocked by special registers, the hack has been integrated into startup_air32f10x.s. Thanks to @deividAlfa.
 
 ## Documents
 

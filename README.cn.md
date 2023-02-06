@@ -12,9 +12,9 @@
 
 ## 说明
 
-* CBT6, CCT6 and RPT6 很大概率使用的相同核心, 片上资源为 256K flash 和 96K RAM
-  * 不同型号的 flash 和 RAM 大小由特殊寄存器控制
-  * 对 flash 和 RAM 的解锁, 已经集成到启动文件. 感谢 @deividAlfa.
+* 很有可能你买到的 AIR32F103CBT6 带有97K内存 - [Hedley Rainnie 的博客](http://www.hrrzi.com/2022/12/the-air32f103.html)
+* 这也适用于 AIR32F103CCT6 和 AIR32F103RPT6
+* 隐藏的RAM可以通过特殊的寄存器解锁, 对应的解锁代码已经集成到startup_air32f10x.s, 感谢 @deividAlfa
 
 ## MCU 资料
 
