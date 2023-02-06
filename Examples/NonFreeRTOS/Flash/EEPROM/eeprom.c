@@ -39,6 +39,28 @@ void AIRFLASH_Write_NoCheck(uint32_t addr, uint16_t *pBuf, uint16_t size)
     }
 }
 
+void AIRFLASH_EraseByPage(uint32_t addr)
+{
+    uint32_t relativeAddr;      // Address relative to 0X08000000 (in byte)
+    uint32_t pages;             // Page address
+
+    if (addr < FLASH_BASE || (addr >= (FLASH_BASE + 1024 * 512)))
+    {
+        // Limit the address between [0x08000000, 0x08080000], skip invalid address
+        return;
+    }
+    // Unlock
+    FLASH_Unlock();
+
+    relativeAddr = addr - FLASH_BASE;
+    pages = relativeAddr / AIR32F103_PAGE_BYTES;
+    // Erase this page
+    FLASH_ErasePage(pages * AIR32F103_PAGE_BYTES + FLASH_BASE);
+
+    // Lock flash
+    FLASH_Lock();
+}
+
 /**
  * Write to flash
  * addr: address should be an integer multiple of 2

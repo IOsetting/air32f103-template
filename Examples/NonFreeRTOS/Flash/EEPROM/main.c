@@ -1,5 +1,9 @@
-/*
+/**
  * @Note Flash EEPROM Test
+ * 
+ * Edit eeprom.h
+ * - AIR32F103CBT6      page size is 1KB:   set AIR32F103_PAGE_BYTES to 1024
+ * - AIR32F103CCT6/RPT6 page size is 2KB:   set AIR32F103_PAGE_BYTES to 2048
 */
 #include <string.h>
 #include <air32f10x_adc.h>
@@ -8,42 +12,22 @@
 
 /**
  * flash start address, must not smaller than the size of this code
- * 0X08008000 = 32K, 0X08010000 = 64K, 0X08020000 = 128K, 0X08040000 = 256K
  * 
- * If you want to test the unlocked 256K flash, change this to 0X0803F400, which is close to the end of 256K
+ * address 0X08008000 = 32K, 0X08010000 = 64K, 0X08020000 = 128K, 0X08040000 = 256K
 */
-#define FLASH_ADDR 0X08008000
+#define FLASH_ADDR 0X08009000
 
+#define TEST_SIZE       0x800 // 2048 * 2 byte = 4096 bytes
+#define BUFF_SIZE       0x200 // 512 * 2 byte = 1024 bytes
 /**
- * Data size slightly larger than one page(2048 bytes)
+ * Data size larger than one page
 */
-const uint8_t test_text[] = 
-    "Shall I compare thee to a summer's day? Thou art more lovely and more temperate. Rough winds do shake the darling buds of May, "
-    "And summer's lease hath all too short a date. Sometime too hot the eye of heaven shines, And often is his gold complexion dimmed; "
-    "And every fair from fair sometime declines, By chance, or nature's changing course, untrimmed; But thy eternal summer shall not fade, "
-    "Nor lose possession of that fair thou ow'st, Nor shall death brag thou wand'rest in his shade, When in eternal lines to Time thou grow'st. "
-    "So long as men can breathe, or eyes can see, So long lives this, and this gives life to thee.\r\n"
-    "Let me not to the marriage of true minds, Admit impediments. Love is not love, Which alters when it alteration finds,"
-    "Or bends with the remover to remove: O, no! it is an ever-fixed mark, That looks on tempests and is never shaken;"
-    "It is the star to every wandering bark, Whose worth's unknown, although his height be taken. Love's not Time's fool, "
-    "though rosy lips and cheeks, Within his bending sickle's compass come; Love alters not with his brief hours and weeks, "
-    "But bears it out even to the edge of doom. If this be error, and upon me prov'd, I never writ, nor no man ever lov'd.\r\n"
-    "My mistress' eyes are nothing like the sun; Coral is far more red than her lips' red; If snow be white, why then her breasts are dun; "
-    "If hairs be wires, black wires grow on her head. I have seen roses damasked, red and white, But no such roses see I in her cheeks; "
-    "And in some perfumes is there more delight, Than in the breath that from my mistress reeks. I love to hear her speak, yet well I know "
-    "That music hath a far more pleasing sound; I grant I never saw a goddess go; My mistress when she walks treads on the ground."
-    "And yet, by heaven, I think my love as rare As any she belied with false compare. \r\n"
-    "When, in disgrace with fortune and men's eyes, I all alone beweep my outcast state, And trouble deaf heaven with my bootless cries, "
-    "And look upon myself and curse my fate, Wishing me like to one more rich in hope, Featured like him, like him with friends possessed, "
-    "Desiring this man's art and that man's scope, With what I most enjoy contented least; Yet in these thoughts myself almost despising, "
-    "Haply I think on thee, and then my state, (Like to the lark at break of day arising From sullen earth) sings hymns at heaven's gate; "
-    "For thy sweet love remembered such wealth brings That then I scorn to change my state with kings.\r\n";
-
+uint16_t test_data[TEST_SIZE], buff[BUFF_SIZE];
 
 int main(void)
 {
-    uint16_t size16 = sizeof(test_text)/2 + (sizeof(test_text)%2);
-    uint16_t buff[size16], i;
+    uint16_t i, j;
+    uint32_t addr;
     RCC_ClocksTypeDef clocks;
 
     Delay_Init();
@@ -57,15 +41,47 @@ int main(void)
 		   (float)clocks.ADCCLK_Frequency / 1000000);
     printf("AIR32F103 Flash EEPROM Test, Write To Address: 0x%08X\n", FLASH_ADDR);
 
-    AIRFLASH_Write(FLASH_ADDR, (uint16_t *)test_text, size16);   // Write to flash
-    printf("\r\nRead from 0x%08X\r\n", FLASH_ADDR);
-    memset(buff, 0x0000, size16);
-    AIRFLASH_Read(FLASH_ADDR, (uint16_t *)buff, size16);         // Read from flash
-    for (i = 0; i < size16; i++)
+    for (i = 0; i < TEST_SIZE; i++)
     {
-        printf("%c%c", buff[i] & 0xFf, buff[i] >> 8);
+        test_data[i] = i;
     }
-    printf("Done.\r\n");
+    AIRFLASH_Write(FLASH_ADDR, test_data, TEST_SIZE);   // Write to flash
 
+    for (i = 0; i < 6; i++)
+    {
+        memset(buff, 0x0000, BUFF_SIZE * sizeof(uint16_t));
+        addr = FLASH_ADDR - (BUFF_SIZE * 2) + BUFF_SIZE * 2 * i;
+        printf("\r\nRead from 0x%08lX\r\n", addr);
+
+        AIRFLASH_Read(addr, buff, BUFF_SIZE);         // Read from flash
+        for (j = 0; j < BUFF_SIZE; j++)
+        {
+            printf("%04x ", buff[j]);
+        }
+        printf("\r\n");
+    }
+
+    /**
+     * AIR32F103CBT6: erase 1KB
+     * AIR32F103CCT6/RPT6: erase 2KB
+    */
+    printf("Erase one page at: 0x%08X\r\n", FLASH_ADDR);
+    AIRFLASH_EraseByPage(FLASH_ADDR);
+    
+    for (i = 0; i < 6; i++)
+    {
+        memset(buff, 0x0000, BUFF_SIZE * sizeof(uint16_t));
+        addr = FLASH_ADDR - (BUFF_SIZE * 2) + BUFF_SIZE * 2 * i;
+        printf("\r\nRead from 0x%08lX\r\n", addr);
+
+        AIRFLASH_Read(addr, (uint16_t *)buff, BUFF_SIZE);         // Read from flash
+        for (j = 0; j < BUFF_SIZE; j++)
+        {
+            printf("%04x ", buff[j]);
+        }
+        printf("\r\n");
+    }
+
+    printf("Done\r\n");
     while (1);
 }
