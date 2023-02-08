@@ -219,10 +219,11 @@ static uint16_t MsNumber = 0;
 void Delay_Init()
 {
     RCC_ClocksTypeDef clocks;
-    RCC_GetClocksFreq(&clocks); //获取时钟频率
+    RCC_GetClocksFreq(&clocks);
     SysTick_CLKSourceConfig(SysTick_CLKSource_HCLK_Div8);
     UsNumber = clocks.HCLK_Frequency / HSE_VALUE;
-    MsNumber = (u16)UsNumber * 1000;
+    /** LOAD is 24-bit, LOAD may overflow(> 16,777,215) if multiple by 1000 */
+    MsNumber = (u16)UsNumber * 100;
 }
 
 void Delay_Us(u32 nus)
@@ -241,14 +242,17 @@ void Delay_Us(u32 nus)
 
 void Delay_Ms(u16 nms)
 {
-    u32 temp;
-    SysTick->LOAD = (u32)nms * MsNumber;
+    u32 temp, round = 10;
+    SysTick->LOAD = (u32)nms * MsNumber - 1;
     SysTick->VAL = 0x00;
     SysTick->CTRL |= SysTick_CTRL_ENABLE_Msk;
-    do
+    while (round--)
     {
-        temp = SysTick->CTRL;
-    } while ((temp & 0x01) && !(temp & (1 << 16)));
+        do
+        {
+            temp = SysTick->CTRL;
+        } while ((temp & 0x01) && !(temp & (1 << 16)));
+    }
     SysTick->CTRL &= ~SysTick_CTRL_ENABLE_Msk;
     SysTick->VAL = 0X00;
 }
