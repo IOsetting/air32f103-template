@@ -1,5 +1,5 @@
 /**
- * Demo: ENC28J60 Link Layer Package Transmission Test
+ * Demo: ENC28J60 Link Layer Packet Transmission Test
  * 
  * Connect ENC28J60 with PC LAN by cable, run tcpdump to capture the packets
  * 

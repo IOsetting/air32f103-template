@@ -177,15 +177,36 @@
 #define MACON2_RFUNRST   0x04
 #define MACON2_MATXRST   0x02
 #define MACON2_TFUNRST   0x01
-// ENC28J60 MACON3 Register Bit Definitions
-#define MACON3_PADCFG2   0x80
-#define MACON3_PADCFG1   0x40
-#define MACON3_PADCFG0   0x20
+
+/**
+ * ENC28J60 MACON3 Register Bit Definitions 
+ */
+
+/* MAC will automatically detect VLAN Protocol frames which have a 8100h type field and
+automatically pad to 64 bytes. If the frame is not a VLAN frame, it will be padded to
+60 bytes. After padding, a valid CRC will be appended.*/
+#define MACON3_PADCFG_64VLAN_OR_60_CRC  0xA0
+/* All short frames will be zero padded to 64 bytes and a valid CRC will then be appended */
+#define MACON3_PADCFG_64BYTE_CRC        0x60
+/* All short frames will be zero padded to 60 bytes and a valid CRC will then be appended */
+#define MACON3_PADCFG_60BYTE_CRC        0x20
+/* No automatic padding of short frames */
+#define MACON3_PADCFG_NONE              0x00
+/* MAC will apend a valid CRC to all frames transmitted regardless of PADCFG. 
+TXCRCEN must be set if PADCFG specifies that a valid CRC will be appended */
 #define MACON3_TXCRCEN   0x10
+/* Proprietary Header Enable bit. Frames presented to the MAC contain a 4-byte proprietary header 
+which will not be used when calculating the CRC */
 #define MACON3_PHDRLEN   0x08
+/* Huge Frame Enable bit. Frames of any size will be allowed to be transmitted and receieved*/
 #define MACON3_HFRMLEN   0x04
+/* Frame Length Checking Enable bit. The type/length field of transmitted and received frames 
+will be checked. If it represents a length, the frame size will be compared and mismatches will 
+be reported in the transmit/receive status vector.*/
 #define MACON3_FRMLNEN   0x02
+/* MAC Full-Duplex Enable bit. MAC will operate in full-duplex. PHCON1.PDPXMD must also be set */
 #define MACON3_FULDPX    0x01
+
 // ENC28J60 MICMD Register Bit Definitions
 #define MICMD_MIISCAN    0x02
 #define MICMD_MIIRD      0x01
