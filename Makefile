@@ -14,6 +14,8 @@ USE_FREERTOS	?= n
 USE_DSP			?= n
 # Build with Helix MP3 lib, y:yes, n:no
 USE_HELIX		?= n
+# Build with uIP lib, y:yes, n:no
+USE_UIP			?= n
 # Programmer, jlink, stlink, cmsis-dap, pyocd
 FLASH_PROGRM    ?= stlink
 
@@ -102,6 +104,13 @@ CDIRS		+= Libraries/Helix \
 INCLUDES	+= Libraries/Helix \
 		Libraries/Helix/pub \
 		Libraries/Helix/real
+endif
+
+ifeq ($(USE_UIP),y)
+CDIRS		+= Libraries/uip/uip
+
+INCLUDES	+= Libraries/uip/uip
+
 endif
 
 include ./rules.mk
