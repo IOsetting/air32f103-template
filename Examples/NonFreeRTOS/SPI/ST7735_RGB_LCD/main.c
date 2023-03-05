@@ -51,6 +51,8 @@ void APP_SPI_Config(void)
 int main(void)
 {
   RCC_ClocksTypeDef clocks;
+  uint16_t i, color = 0;
+
   Delay_Init();
   USART_Printf_Init(115200);
   RCC_GetClocksFreq(&clocks);
@@ -67,11 +69,22 @@ int main(void)
 
   while (1)
   {
-    ST7735_Fill(0x001F);
+    ST7735_FillAddrWindow(0, 0, ST7735_WIDTH - 1, ST7735_HEIGHT - 1, 0x001F);
     Delay_Ms(500);
-    ST7735_Fill(0xF800);
+    ST7735_FillAddrWindow(0, 0, ST7735_WIDTH - 1, ST7735_HEIGHT - 1, 0xF800);
     Delay_Ms(500);
-    ST7735_Fill(0x07E0);
+    ST7735_FillAddrWindow(0, 0, ST7735_WIDTH - 1, ST7735_HEIGHT - 1, 0x07E0);
     Delay_Ms(500);
+
+    for (i = 0; i < ST7735_HEIGHT; i += 20)
+    {
+      ST7735_FillAddrWindow(0, i, ST7735_WIDTH - 1, i + 20 - 1, color++);
+      Delay_Ms(200);
+    }
+    for (i = 0; i < ST7735_WIDTH; i += 16)
+    {
+      ST7735_FillAddrWindow(i, 0, i + 16 - 1, ST7735_HEIGHT - 1, color++);
+      Delay_Ms(200);
+    }
   }
 }

@@ -32,17 +32,7 @@ void ST7735_WriteData(const uint8_t *data, uint16_t len)
   }
 }
 
-void ST7735_WriteDataBurst(const uint16_t data, uint32_t len)
-{
-  while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);
-  for(uint32_t i = 0; i < len * 2; i ++) 
-  {
-    SPI_I2S_SendData(SPI1, *((uint8_t *)&data + (i % 2)));
-    while(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_BSY) == SET);
-  }
-}
-
-static void ST7735_SetAddrWindow(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
+void ST7735_SetAddrWindow(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
 {
     // column address set
     ST7735_WriteCommand(ST7735_CASET);
@@ -65,17 +55,33 @@ static void ST7735_SetAddrWindow(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t
     ST7735_WriteCommand(ST7735_RAMWR);
 }
 
-void ST7735_Fill(uint16_t color)
+void ST7735_FillAddrWindow(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color)
 {
-  uint32_t len = ST7735_WIDTH * ST7735_HEIGHT;
+  uint32_t tmp, i;
+  if (x1 > x2)
+  {
+    tmp = x1; x1 = x2; x2 = tmp;
+  }
+  if (y1 > y2)
+  {
+    tmp = y1; y1 = y2; y2 = tmp;
+  }
+  tmp = (x2 - x1 + 1) * (y2 - y1 + 1);
   ST7735_CS_LOW;
-  ST7735_SetAddrWindow(0, 0, ST7735_WIDTH - 1, ST7735_HEIGHT - 1);
-  ST7735_WriteDataBurst(color, len);
+  ST7735_SetAddrWindow(x1, y1, x2, y2);
+  while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);
+  for(i = 0; i < tmp * 2; i ++) 
+  {
+    SPI_I2S_SendData(SPI1, *((uint8_t *)&color + (i % 2)));
+    while(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_BSY) == SET);
+  }
   ST7735_CS_HIGH;
 }
 
+#if (ST7735_TYPE == ST7735_TYPEB)
+
 static const uint8_t
-    init_cmds_b[] = {                   // Init commands for 7735B screens
+    init_cmds[] = {                   // Init commands for 7735B screens
         18,                             // 18 commands in list:
         ST7735_SWRESET, ST7735_CMD_DELAY, //  1: Software reset, no args, w/delay
         50,                               //     50 ms delay
@@ -133,9 +139,12 @@ static const uint8_t
         10,                               //     10 ms delay
         ST7735_DISPON, ST7735_CMD_DELAY,  // 18: Main screen turn on, no args, delay
         255                               //     255 = max (500 ms) delay
-    },
+    };
 
-    init_cmds_r[] = {                      // Init for 7735R, part 1 (red or green tab)
+#elif (ST7735_TYPE == ST7735_TYPER)
+
+static const uint8_t
+    init_cmds[] = {                      // Init for 7735R, part 1 (red or green tab)
         15,                               // 15 commands in list:
         ST7735_SWRESET, ST7735_CMD_DELAY, //  1: Software reset, 0 args, w/delay
         150,                              //     150 ms delay
@@ -171,8 +180,11 @@ static const uint8_t
         ST7735_ROTATION,                  //     
         ST7735_COLMOD , 1,                // 15: set color mode, 1 arg, no delay:
         0x05                              //     16-bit color
-    },
+    };
 
+#endif
+
+static const uint8_t
     init_cmds2[] = {
         2,                                //  2 commands in list:
         ST7735_CASET, 4,                  //  1: Column addr set, 4 args, no delay:
@@ -246,7 +258,7 @@ void ST7735_Reset(void)
 void ST7735_Init(void)
 {
     ST7735_Reset();
-    ST7735_ExecuteCommandList(init_cmds_r);
+    ST7735_ExecuteCommandList(init_cmds);
     ST7735_ExecuteCommandList(init_cmds2);
     ST7735_ExecuteCommandList(init_cmds3);
 }

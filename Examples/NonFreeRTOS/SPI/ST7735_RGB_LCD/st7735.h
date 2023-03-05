@@ -30,6 +30,9 @@
 #define ST7735_RESET_LOW        GPIO_ResetBits(ST7735_RES_PORT, ST7735_RES_PIN)
 #define ST7735_RESET_HIGH       GPIO_SetBits(ST7735_RES_PORT, ST7735_RES_PIN)
 
+#define ST7735_TYPEB            0
+#define ST7735_TYPER            1
+
 // ST7789V-based 2.4" display, default orientation
 /*
 #define ST7735_WIDTH  240
@@ -77,6 +80,7 @@
 
 // WaveShare ST7735S-based 1.8" display, default orientation
 
+#define ST7735_TYPE   ST7735_TYPER
 #define ST7735_WIDTH  128
 #define ST7735_HEIGHT 160
 #define ST7735_XSTART 2
@@ -187,6 +191,7 @@
 
 void ST7735_Init(void);
 void ST7735_WriteData(const uint8_t *data, uint16_t len);
-void ST7735_Fill(uint16_t color);
+void ST7735_SetAddrWindow(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
+void ST7735_FillAddrWindow(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color);
 
 #endif
