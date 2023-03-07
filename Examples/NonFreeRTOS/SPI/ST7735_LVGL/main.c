@@ -1,7 +1,7 @@
 /**
  * ST7735 RGB 128x160 LCD LVGL Demo
  * 
-  * AIR32        ST7735
+ * AIR32        ST7735
  * - PA2        BL
  * - PA3        CS
  * - PA4        DC(Data/Command)
@@ -51,7 +51,7 @@ int main(void)
   printf("SYSCLK: %ld, HCLK: %ld, PCLK1: %ld, PCLK2: %ld, ADCCLK: %ld\n",
          clocks.SYSCLK_Frequency, clocks.HCLK_Frequency,
          clocks.PCLK1_Frequency, clocks.PCLK2_Frequency, clocks.ADCCLK_Frequency);
-  printf("AIR32F103 ST7735 Demo.\n");
+  printf("AIR32F103 ST7735 LVGL Demo.\n");
 
   TIM3_Configuration();
   APP_GPIO_Config();
