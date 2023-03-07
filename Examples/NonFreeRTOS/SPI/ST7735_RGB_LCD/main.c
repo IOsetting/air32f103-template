@@ -1,3 +1,17 @@
+/**
+ * ST7735 RGB 128x160 LCD Demo
+ * 
+ * 
+ * AIR32        ST7735
+ * - PA2        BL
+ * - PA3        CS
+ * - PA4        DC(Data/Command)
+ * - PA5        SCK/SCL
+ * - PA6        RES
+ * - PA7        SI/SDA
+ * - GND        GND
+ * - 3.3V       VCC
+*/
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
