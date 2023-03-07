@@ -57,7 +57,7 @@ TGT_LDFLAGS	+= -u _printf_float
 endif
 
 # include paths
-TGT_INCFLAGS := $(addprefix -I $(TOP)/, $(INCLUDES))
+TGT_INCFLAGS := $(addprefix -I$(TOP)/, $(INCLUDES)) $(CFLAGS)
 
 
 .PHONY: all clean flash echo

@@ -16,6 +16,8 @@ USE_DSP			?= n
 USE_HELIX		?= n
 # Build with uIP lib, y:yes, n:no
 USE_UIP			?= n
+# Build with lvgl, y:yes, n:no
+USE_LVGL		?= n
 # Programmer, jlink, stlink, cmsis-dap, pyocd
 FLASH_PROGRM    ?= stlink
 
@@ -110,6 +112,21 @@ ifeq ($(USE_UIP),y)
 CDIRS		+= Libraries/uip/uip
 
 INCLUDES	+= Libraries/uip/uip
+
+endif
+
+ifeq ($(USE_LVGL),y)
+LVGL_DIR	?= Libraries
+LVGL_DIR_NAME	?= lvgl
+
+include Libraries/lvgl/lvgl.mk
+
+CFILES 		+= $(CSRCS)
+INCLUDES	+= Libraries/lvgl
+
+else
+
+CFLAGS		?= 
 
 endif
 
