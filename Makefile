@@ -18,6 +18,8 @@ USE_HELIX		?= n
 USE_UIP			?= n
 # Build with lvgl, y:yes, n:no
 USE_LVGL		?= n
+# Build with Waveshare e-paper lib, y:yes, n:no
+USE_EPAPER		?= n
 # Programmer, jlink, stlink, cmsis-dap, pyocd
 FLASH_PROGRM    ?= stlink
 
@@ -129,5 +131,20 @@ else
 CFLAGS		?= 
 
 endif
+
+ifeq ($(USE_EPAPER),y)
+CDIRS		+= Libraries/EPaper/Lib \
+			Libraries/EPaper/Examples \
+			Libraries/EPaper/Fonts \
+			Libraries/EPaper/GUI
+
+INCLUDES	+= Libraries/EPaper/Lib \
+			Libraries/EPaper/Examples \
+			Libraries/EPaper/Fonts \
+			Libraries/EPaper/GUI
+
+endif
+
+
 
 include ./rules.mk
