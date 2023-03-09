@@ -19,9 +19,9 @@
 #define DEBUG_UART3    3
 
 /* DEBUG UATR Definition */
-#define DEBUG   DEBUG_UART1
-//#define DEBUG   DEBUG_UART2
-//#define DEBUG   DEBUG_UART3
+#define DEBUG_UART   DEBUG_UART1
+//#define DEBUG_UART   DEBUG_UART2
+//#define DEBUG_UART   DEBUG_UART3
 
 /* GPIO Bit-Banding Macro Definition */
 #define BITBAND(adr, number)  ((adr & 0xF0000000)+0x2000000+((adr &0xFFFFF)<<5)+(number<<2)) 

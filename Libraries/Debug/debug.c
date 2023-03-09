@@ -36,13 +36,13 @@ void USART_Print(USART_TypeDef* USARTx, uint16_t ch)
 
 PUTCHAR_PROTOTYPE
 {
-#if (DEBUG == DEBUG_UART1)
+#if (DEBUG_UART == DEBUG_UART1)
     USART1->DR = ((uint16_t)ch & (uint16_t)0x01FF);
     while((USART1->SR & USART_FLAG_TC) == (uint16_t)RESET);
-#elif (DEBUG == DEBUG_UART2)
+#elif (DEBUG_UART == DEBUG_UART2)
     USART2->DR = ((uint16_t)ch & (uint16_t)0x01FF);
     while((USART2->SR & USART_FLAG_TC) == (uint16_t)RESET);
-#elif (DEBUG == DEBUG_UART3)
+#elif (DEBUG_UART == DEBUG_UART3)
     USART3->DR = ((uint16_t)ch & (uint16_t)0x01FF);
     while((USART3->SR & USART_FLAG_TC) == (uint16_t)RESET);
 #endif
@@ -51,13 +51,13 @@ PUTCHAR_PROTOTYPE
 
 GETCHAR_PROTOTYPE
 {
-    #if (DEBUG == DEBUG_UART1)
+    #if (DEBUG_UART == DEBUG_UART1)
     while (USART_GetFlagStatus(USART1, USART_FLAG_RXNE) == RESET);
     return (uint8_t)USART_ReceiveData(USART1);
-    #elif (DEBUG == DEBUG_UART2)
+    #elif (DEBUG_UART == DEBUG_UART2)
     while (USART_GetFlagStatus(USART2, USART_FLAG_RXNE) == RESET);
     return (uint8_t)USART_ReceiveData(USART2);
-    #elif (DEBUG == DEBUG_UART3)
+    #elif (DEBUG_UART == DEBUG_UART3)
     while (USART_GetFlagStatus(USART3, USART_FLAG_RXNE) == RESET);
     return (uint8_t)USART_ReceiveData(USART3);
     #endif
@@ -155,7 +155,7 @@ void USART_Printf_Init(u32 baudrate)
     GPIO_InitTypeDef GPIO_InitStructure;
     USART_InitTypeDef USART_InitStructure;
 
-#if (DEBUG == DEBUG_UART1)
+#if (DEBUG_UART == DEBUG_UART1)
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1|RCC_APB2Periph_GPIOA, ENABLE); 
 
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9; 
@@ -167,7 +167,7 @@ void USART_Printf_Init(u32 baudrate)
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
     GPIO_Init(GPIOA, &GPIO_InitStructure);
 
-#elif (DEBUG == DEBUG_UART2)
+#elif (DEBUG_UART == DEBUG_UART2)
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
 
@@ -176,7 +176,7 @@ void USART_Printf_Init(u32 baudrate)
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
     GPIO_Init(GPIOA, &GPIO_InitStructure);
 
-#elif (DEBUG == DEBUG_UART3)
+#elif (DEBUG_UART == DEBUG_UART3)
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE);
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
 
@@ -193,13 +193,13 @@ void USART_Printf_Init(u32 baudrate)
     USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
     USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
 
-#if (DEBUG == DEBUG_UART1)
+#if (DEBUG_UART == DEBUG_UART1)
     USART_Init(USART1, &USART_InitStructure);
     USART_Cmd(USART1, ENABLE);
-#elif (DEBUG == DEBUG_UART2)
+#elif (DEBUG_UART == DEBUG_UART2)
     USART_Init(USART2, &USART_InitStructure);
     USART_Cmd(USART2, ENABLE);
-#elif (DEBUG == DEBUG_UART3)
+#elif (DEBUG_UART == DEBUG_UART3)
     USART_Init(USART3, &USART_InitStructure);
     USART_Cmd(USART3, ENABLE);
 #endif
