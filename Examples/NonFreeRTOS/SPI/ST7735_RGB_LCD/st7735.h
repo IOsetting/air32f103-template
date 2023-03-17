@@ -115,6 +115,16 @@
 #define ST7735_ROTATION (ST7735_MADCTL_RGB)
 */
 
+// Zhongjingyuan ST7735S-based 0.96" 128x64 display, default orientation
+/*
+#define ST7735_TYPE   ST7735_TYPER
+#define ST7735_WIDTH  128
+#define ST7735_HEIGHT 64
+#define ST7735_XSTART 2
+#define ST7735_YSTART 67
+#define ST7735_ROTATION (ST7735_MADCTL_MX | ST7735_MADCTL_MY | ST7735_MADCTL_RGB)
+*/
+
 #define ST7735_CMD_DELAY 0x80 // special signifier for command lists
 
 #define ST7735_NOP       0x00
