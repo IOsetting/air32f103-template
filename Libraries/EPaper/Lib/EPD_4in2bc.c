@@ -91,10 +91,8 @@ parameter:
 ******************************************************************************/
 static void EPD_4IN2BC_Reset(void)
 {
-    EPD_Digital_Write(EPD_RST_PIN, 1);
-    EPD_Delay_ms(200);
     EPD_Digital_Write(EPD_RST_PIN, 0);
-    EPD_Delay_ms(5);
+    EPD_Delay_ms(200);
     EPD_Digital_Write(EPD_RST_PIN, 1);
     EPD_Delay_ms(200);
 }
@@ -131,20 +129,21 @@ parameter:
 ******************************************************************************/
 void EPD_4IN2BC_ReadBusy(void)
 {
-    EPD_Printf("e-Paper busy\r\n");
+    EPD_Printf("e-Paper busy");
     while(EPD_Digital_Read(EPD_BUSY_PIN) == 0) {      //0: busy, 1: idle
-        EPD_Delay_ms(100);
+        EPD_Printf(".");
+        EPD_Delay_ms(200);
     }
-    EPD_Printf("e-Paper busy release\r\n");
+    EPD_Printf("idle\r\n");
 }
 
 /******************************************************************************
-function :	Turn On Display
+function :	Refresh Display
 parameter:
 ******************************************************************************/
-static void EPD_4IN2BC_TurnOnDisplay(void)
+void EPD_4IN2BC_RefreshDisplay(void)
 {
-    EPD_4IN2BC_SendCommand(0x12); // DISPLAY_REFRESH
+    EPD_4IN2BC_SendCommand(DISPLAY_REFRESH);
     EPD_Delay_ms(100);
     EPD_4IN2BC_ReadBusy();
 }
@@ -157,14 +156,15 @@ void EPD_4IN2BC_Init(void)
 {
     EPD_4IN2BC_Reset();
 
-    EPD_4IN2BC_SendCommand(0x06); // BOOSTER_SOFT_START
+    EPD_4IN2BC_SendCommand(BOOSTER_SOFT_START);
     EPD_4IN2BC_SendData(0x17);
     EPD_4IN2BC_SendData(0x17);
     EPD_4IN2BC_SendData(0x17); // 07 0f 17 1f 27 2F 37 2f
-    EPD_4IN2BC_SendCommand(0x04); // POWER_ON
+    EPD_4IN2BC_SendCommand(POWER_ON);
     EPD_4IN2BC_ReadBusy();
-    EPD_4IN2BC_SendCommand(0x00); // PANEL_SETTING
+    EPD_4IN2BC_SendCommand(PANEL_SETTING);
     EPD_4IN2BC_SendData(0x0F); // LUT from OTP
+    /* EPD hardware init end */
 }
 
 /******************************************************************************
@@ -173,25 +173,21 @@ parameter:
 ******************************************************************************/
 void EPD_4IN2BC_Clear(void)
 {
-    UWORD Width, Height;
-    Width = (EPD_4IN2BC_WIDTH % 8 == 0)? (EPD_4IN2BC_WIDTH / 8 ): (EPD_4IN2BC_WIDTH / 8 + 1);
-    Height = EPD_4IN2BC_HEIGHT;
-
-    EPD_4IN2BC_SendCommand(0x10);
-    for (UWORD j = 0; j < Height; j++) {
-        for (UWORD i = 0; i < Width; i++) {
-            EPD_4IN2BC_SendData(0xFF);
+    EPD_4IN2BC_SendCommand(DATA_START_TRANSMISSION_1);
+    for (UWORD j = 0; j < EPD_BYTE_HEIGHT; j++) {
+        for (UWORD i = 0; i < EPD_BYTE_WIDTH; i++) {
+            EPD_4IN2BC_SendData(EPD_4IN2BC_B_WHITE);
         }
     }
 
-    EPD_4IN2BC_SendCommand(0x13);
-    for (UWORD j = 0; j < Height; j++) {
-        for (UWORD i = 0; i < Width; i++) {
-            EPD_4IN2BC_SendData(0xFF);
+    EPD_4IN2BC_SendCommand(DATA_START_TRANSMISSION_2);
+    for (UWORD j = 0; j < EPD_BYTE_HEIGHT; j++) {
+        for (UWORD i = 0; i < EPD_BYTE_WIDTH; i++) {
+            EPD_4IN2BC_SendData(EPD_4IN2BC_R_WHITE);
         }
     }
 
-    EPD_4IN2BC_TurnOnDisplay();
+    EPD_4IN2BC_RefreshDisplay();
 }
 
 /******************************************************************************
@@ -200,25 +196,21 @@ parameter:
 ******************************************************************************/
 void EPD_4IN2BC_Display(const UBYTE *blackimage, const UBYTE *ryimage)
 {
-    UWORD Width, Height;
-    Width = (EPD_4IN2BC_WIDTH % 8 == 0)? (EPD_4IN2BC_WIDTH / 8 ): (EPD_4IN2BC_WIDTH / 8 + 1);
-    Height = EPD_4IN2BC_HEIGHT;
-
-    EPD_4IN2BC_SendCommand(0x10);
-    for (UWORD j = 0; j < Height; j++) {
-        for (UWORD i = 0; i < Width; i++) {
-            EPD_4IN2BC_SendData(blackimage[i + j * Width]);
+    EPD_4IN2BC_SendCommand(DATA_START_TRANSMISSION_1);
+    for (UWORD j = 0; j < EPD_BYTE_HEIGHT; j++) {
+        for (UWORD i = 0; i < EPD_BYTE_WIDTH; i++) {
+            EPD_4IN2BC_SendData(blackimage[i + j * EPD_BYTE_WIDTH]);
         }
     }
 
-    EPD_4IN2BC_SendCommand(0x13);
-    for (UWORD j = 0; j < Height; j++) {
-        for (UWORD i = 0; i < Width; i++) {
-            EPD_4IN2BC_SendData(ryimage[i + j * Width]);
+    EPD_4IN2BC_SendCommand(DATA_START_TRANSMISSION_2);
+    for (UWORD j = 0; j < EPD_BYTE_HEIGHT; j++) {
+        for (UWORD i = 0; i < EPD_BYTE_WIDTH; i++) {
+            EPD_4IN2BC_SendData(ryimage[i + j * EPD_BYTE_WIDTH]);
         }
     }
 
-    EPD_4IN2BC_TurnOnDisplay();
+    EPD_4IN2BC_RefreshDisplay();
 }
 
 /******************************************************************************
@@ -227,10 +219,106 @@ parameter:
 ******************************************************************************/
 void EPD_4IN2BC_Sleep(void)
 {
-    EPD_4IN2BC_SendCommand(0x02); // POWER_OFF
+    EPD_4IN2BC_SendCommand(VCOM_AND_DATA_INTERVAL_SETTING);
+    EPD_4IN2BC_SendData(0xF7);     // border floating
+    EPD_4IN2BC_SendCommand(POWER_OFF);
     EPD_4IN2BC_ReadBusy();
-    EPD_4IN2BC_SendCommand(0x07); // DEEP_SLEEP
-    EPD_4IN2BC_SendData(0XA5);
+    EPD_4IN2BC_SendCommand(DEEP_SLEEP);
+    EPD_4IN2BC_SendData(0xA5);     // check code
+}
+
+/**
+ *  @brief: transmit partial data to the SRAM
+ */
+void EPD_4IN2BC_SetPartialWindow(const UBYTE *buffer_black, const UBYTE *buffer_red, uint16_t x, uint16_t y, uint16_t w, uint16_t l)
+{
+    EPD_4IN2BC_SendCommand(PARTIAL_IN);
+    EPD_4IN2BC_SendCommand(PARTIAL_WINDOW);
+    EPD_4IN2BC_SendData(x >> 8);
+    EPD_4IN2BC_SendData(x & 0xf8);     // x should be the multiple of 8, the last 3 bit will always be ignored
+    EPD_4IN2BC_SendData(((x & 0xf8) + w  - 1) >> 8);
+    EPD_4IN2BC_SendData(((x & 0xf8) + w  - 1) | 0x07);
+    EPD_4IN2BC_SendData(y >> 8);        
+    EPD_4IN2BC_SendData(y & 0xff);
+    EPD_4IN2BC_SendData((y + l - 1) >> 8);        
+    EPD_4IN2BC_SendData((y + l - 1) & 0xff);
+    EPD_4IN2BC_SendData(0x01);         // Gates scan both inside and outside of the partial window. (default) 
+    EPD_Delay_ms(2);
+    EPD_4IN2BC_SendCommand(DATA_START_TRANSMISSION_1);
+    if (buffer_black != NULL) 
+    {
+        for(int i = 0; i < w  / 8 * l; i++)
+        {
+            EPD_4IN2BC_SendData(buffer_black[i]);  
+        }  
+    }
+    EPD_Delay_ms(2);
+    EPD_4IN2BC_SendCommand(DATA_START_TRANSMISSION_2);
+    if (buffer_red != NULL) {
+        for(int i = 0; i < w  / 8 * l; i++) {
+            EPD_4IN2BC_SendData(buffer_red[i]);  
+        }  
+    }
+    EPD_Delay_ms(2);
+    EPD_4IN2BC_SendCommand(PARTIAL_OUT);  
+}
+
+/**
+ *  @brief: transmit partial data to the black part of SRAM
+ */
+void EPD_4IN2BC_SetPartialWindowBlack(const UBYTE *buffer_black, uint16_t x, uint16_t y, uint16_t w, uint16_t l)
+{
+    EPD_4IN2BC_SendCommand(PARTIAL_IN);
+    EPD_4IN2BC_SendCommand(PARTIAL_WINDOW);
+    EPD_4IN2BC_SendData(x >> 8);
+    EPD_4IN2BC_SendData(x & 0xf8);     // x should be the multiple of 8, the last 3 bit will always be ignored
+    EPD_4IN2BC_SendData(((x & 0xf8) + w  - 1) >> 8);
+    EPD_4IN2BC_SendData(((x & 0xf8) + w  - 1) | 0x07);
+    EPD_4IN2BC_SendData(y >> 8);        
+    EPD_4IN2BC_SendData(y & 0xff);
+    EPD_4IN2BC_SendData((y + l - 1) >> 8);        
+    EPD_4IN2BC_SendData((y + l - 1) & 0xff);
+    EPD_4IN2BC_SendData(0x01);         // Gates scan both inside and outside of the partial window. (default) 
+    EPD_Delay_ms(100);
+    EPD_4IN2BC_SendCommand(DATA_START_TRANSMISSION_1);
+    if (buffer_black != NULL)
+    {
+        for(int i = 0; i < w  / 8 * l; i++)
+        {
+            EPD_4IN2BC_SendData(buffer_black[i]);  
+        }  
+    }
+    EPD_Delay_ms(100);
+    EPD_4IN2BC_SendCommand(PARTIAL_OUT);  
+}
+
+/**
+ *  @brief: transmit partial data to the red part of SRAM
+ */
+void EPD_4IN2BC_SetPartialWindowRed(const UBYTE *buffer_red, uint16_t x, uint16_t y, uint16_t w, uint16_t l)
+{
+    EPD_4IN2BC_SendCommand(PARTIAL_IN);
+    EPD_4IN2BC_SendCommand(PARTIAL_WINDOW);
+    EPD_4IN2BC_SendData(x >> 8);
+    EPD_4IN2BC_SendData(x & 0xf8);     // x should be the multiple of 8, the last 3 bit will always be ignored
+    EPD_4IN2BC_SendData(((x & 0xf8) + w  - 1) >> 8);
+    EPD_4IN2BC_SendData(((x & 0xf8) + w  - 1) | 0x07);
+    EPD_4IN2BC_SendData(y >> 8);        
+    EPD_4IN2BC_SendData(y & 0xff);
+    EPD_4IN2BC_SendData((y + l - 1) >> 8);        
+    EPD_4IN2BC_SendData((y + l - 1) & 0xff);
+    EPD_4IN2BC_SendData(0x01);         // Gates scan both inside and outside of the partial window. (default) 
+    EPD_Delay_ms(2);
+    EPD_4IN2BC_SendCommand(DATA_START_TRANSMISSION_2);
+    if (buffer_red != NULL) 
+    {
+        for(int i = 0; i < w  / 8 * l; i++) 
+        {
+            EPD_4IN2BC_SendData(buffer_red[i]);  
+        }  
+    }
+    EPD_Delay_ms(2);
+    EPD_4IN2BC_SendCommand(PARTIAL_OUT);  
 }
 
 #endif

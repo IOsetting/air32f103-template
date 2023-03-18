@@ -29,6 +29,7 @@
 ******************************************************************************/
 #include "EPD_Test.h"
 #include "EPD_4in2bc.h"
+#include "string.h"
 
 #ifdef EPD_4IN2BC
 int EPD_test(void)
@@ -36,14 +37,16 @@ int EPD_test(void)
     printf("EPD_4IN2BC_test Demo\r\n");
     EPD_Module_Init();
 
-    printf("e-Paper Init and Clear...\r\n");
+    printf("e-Paper init...\r\n");
     EPD_4IN2BC_Init();
+    printf("e-Paper clear...\r\n");
     EPD_4IN2BC_Clear();
     EPD_Delay_ms(500);
 
     //Create a new image cache named IMAGE_BW and fill it with white
     UBYTE *BlackImage, *RYImage; // Red or Yellow
-    UWORD Imagesize = ((EPD_4IN2BC_WIDTH % 8 == 0)? (EPD_4IN2BC_WIDTH / 8 ): (EPD_4IN2BC_WIDTH / 8 + 1)) * EPD_4IN2BC_HEIGHT;
+    UWORD Imagesize = EPD_BYTE_WIDTH * EPD_BYTE_HEIGHT;
+
     if((BlackImage = (UBYTE *)malloc(Imagesize)) == NULL) {
         printf("Failed to apply for black memory...\r\n");
         return -1;
@@ -56,15 +59,32 @@ int EPD_test(void)
     Paint_NewImage(BlackImage, EPD_4IN2BC_WIDTH, EPD_4IN2BC_HEIGHT, 270, WHITE);
     Paint_NewImage(RYImage, EPD_4IN2BC_WIDTH, EPD_4IN2BC_HEIGHT, 270, WHITE);
 
-    //Select Image
-    Paint_SelectImage(BlackImage);
-    Paint_Clear(WHITE);
+#if 1   // show image for array    
+    printf("show image for array\r\n");
     Paint_SelectImage(RYImage);
-    Paint_Clear(WHITE);
+    Paint_Clear(EPD_4IN2BC_R_WHITE);
+    memcpy(BlackImage, gImage_4in2bc_b, Imagesize);
+    EPD_4IN2BC_Display(BlackImage, RYImage);
+    EPD_Delay_ms(2000);
+    // Update partial image (for small ram parts, this won't speed up refresh)
+    printf("Partial update\r\n");
+    memcpy(BlackImage, gImage_1in54, (200 / 8) * 200);
+    EPD_4IN2BC_SetPartialWindowBlack(BlackImage, 0, 50, 200, 200);
+    EPD_4IN2BC_RefreshDisplay();
+    EPD_Delay_ms(2000);
+    printf("Partial update\r\n");
+    EPD_4IN2BC_SetPartialWindowBlack(BlackImage, 200, 50, 200, 200);
+    EPD_4IN2BC_RefreshDisplay();
+    EPD_Delay_ms(2000);
+
+#endif
 
 #if 1   // show image for array    
     printf("show image for array\r\n");
-    EPD_4IN2BC_Display(gImage_4in2bc_b, gImage_4in2bc_ry);
+    Paint_SelectImage(BlackImage);
+    Paint_Clear(EPD_4IN2BC_B_WHITE);
+    memcpy(RYImage, gImage_4in2bc_ry, Imagesize);
+    EPD_4IN2BC_Display(BlackImage, RYImage);
     EPD_Delay_ms(2000);
 #endif
 
@@ -85,18 +105,18 @@ int EPD_test(void)
     Paint_DrawString_EN(10, 0, "waveshare", &Font16, BLACK, WHITE);
     Paint_DrawString_CN(130, 20, "微雪电子", &Font24CN, WHITE, BLACK);
     Paint_DrawNum(10, 50, 987654321, &Font16, WHITE, BLACK);
-    
+
     //2.Draw red image
     printf("Draw red image\r\n");
     Paint_SelectImage(RYImage);
-    Paint_Clear(WHITE);
-    Paint_DrawCircle(160, 95, 20, BLACK, DOT_PIXEL_1X1, DRAW_FILL_EMPTY);
-    Paint_DrawCircle(210, 95, 20, BLACK, DOT_PIXEL_1X1, DRAW_FILL_FULL);
-    Paint_DrawLine(85, 95, 125, 95, BLACK, DOT_PIXEL_1X1, LINE_STYLE_DOTTED);
-    Paint_DrawLine(105, 75, 105, 115, BLACK, DOT_PIXEL_1X1, LINE_STYLE_DOTTED);  
-    Paint_DrawString_CN(130, 0,"你好abc", &Font12CN, BLACK, WHITE);
-    Paint_DrawString_EN(10, 20, "hello world", &Font12, WHITE, BLACK);
-    Paint_DrawNum(10, 33, 123456789, &Font12, BLACK, WHITE);
+    Paint_Clear(EPD_4IN2BC_R_WHITE);
+    Paint_DrawCircle(160, 95, 20, EPD_4IN2BC_R_RED, DOT_PIXEL_1X1, DRAW_FILL_EMPTY);
+    Paint_DrawCircle(210, 95, 20, EPD_4IN2BC_R_RED, DOT_PIXEL_1X1, DRAW_FILL_FULL);
+    Paint_DrawLine(85, 95, 125, 95, EPD_4IN2BC_R_RED, DOT_PIXEL_1X1, LINE_STYLE_DOTTED);
+    Paint_DrawLine(105, 75, 105, 115, EPD_4IN2BC_R_RED, DOT_PIXEL_1X1, LINE_STYLE_DOTTED);  
+    Paint_DrawString_CN(130, 0,"你好abc", &Font12CN, EPD_4IN2BC_R_RED, EPD_4IN2BC_R_WHITE);
+    Paint_DrawString_EN(10, 20, "hello world", &Font12, EPD_4IN2BC_R_WHITE, EPD_4IN2BC_R_RED);
+    Paint_DrawNum(10, 33, 123456789, &Font12, EPD_4IN2BC_R_RED, EPD_4IN2BC_R_WHITE);
 
     printf("EPD_Display\r\n");
     EPD_4IN2BC_Display(BlackImage, RYImage);
