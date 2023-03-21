@@ -845,6 +845,19 @@ void Paint_DrawBitMap(const unsigned char* image_buffer)
     }
 }
 
+void Paint_DrawBitMap2(const unsigned char* image_buffer, UBYTE flipColor)
+{
+    UWORD x, y;
+    UDOUBLE Addr = 0;
+
+    for (y = 0; y < Paint.HeightByte; y++) {
+        for (x = 0; x < Paint.WidthByte; x++) {//8 pixel =  1 byte
+            Addr = x + y * Paint.WidthByte;
+            Paint.Image[Addr] = (flipColor)? ~image_buffer[Addr] : image_buffer[Addr];
+        }
+    }
+}
+
 /******************************************************************************
 function:	paste monochrome bitmap to a frame buff
 parameter:

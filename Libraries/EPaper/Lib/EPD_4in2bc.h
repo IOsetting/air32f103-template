@@ -146,10 +146,11 @@ void EPD_4IN2BC_Init(void);
 void EPD_4IN2BC_Clear(void);
 void EPD_4IN2BC_Sleep(void);
 void EPD_4IN2BC_RefreshDisplay(void);
-void EPD_4IN2BC_Display(const UBYTE *blackimage, const UBYTE *ryimage);
-void EPD_4IN2BC_SetPartialWindowBlack(const UBYTE *buffer_black, uint16_t x, uint16_t y, uint16_t w, uint16_t l);
-void EPD_4IN2BC_SetPartialWindowRed(const UBYTE *buffer_red, uint16_t x, uint16_t y, uint16_t w, uint16_t l);
-void EPD_4IN2BC_SetPartialWindow(const UBYTE *buffer_black, const UBYTE *buffer_red, uint16_t x, uint16_t y, uint16_t w, uint16_t l);
+void EPD_4IN2BC_ClearRam(void);
+void EPD_4IN2BC_SetRam(const UBYTE *blackimage, const UBYTE *ryimage);
+void EPD_4IN2BC_SetPartialRamBlack(const UBYTE *buffer_black, uint16_t x, uint16_t y, uint16_t w, uint16_t l);
+void EPD_4IN2BC_SetPartialRamRed(const UBYTE *buffer_red, uint16_t x, uint16_t y, uint16_t w, uint16_t l);
+void EPD_4IN2BC_SetPartialRam(const UBYTE *buffer_black, const UBYTE *buffer_red, uint16_t x, uint16_t y, uint16_t w, uint16_t l);
 
 #endif
 

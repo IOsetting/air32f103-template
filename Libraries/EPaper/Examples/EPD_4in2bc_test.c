@@ -39,9 +39,8 @@ int EPD_test(void)
 
     printf("e-Paper init...\r\n");
     EPD_4IN2BC_Init();
-    printf("e-Paper clear...\r\n");
-    EPD_4IN2BC_Clear();
     EPD_Delay_ms(500);
+    EPD_4IN2BC_ClearRam();
 
     //Create a new image cache named IMAGE_BW and fill it with white
     UBYTE *BlackImage, *RYImage; // Red or Yellow
@@ -56,24 +55,19 @@ int EPD_test(void)
         return -1;
     }
     printf("NewImage:BlackImage and RYImage\r\n");
-    Paint_NewImage(BlackImage, EPD_4IN2BC_WIDTH, EPD_4IN2BC_HEIGHT, 270, WHITE);
-    Paint_NewImage(RYImage, EPD_4IN2BC_WIDTH, EPD_4IN2BC_HEIGHT, 270, WHITE);
+    Paint_NewImage(BlackImage, EPD_4IN2BC_WIDTH, EPD_4IN2BC_HEIGHT, 270, EPD_4IN2BC_B_WHITE);
+    Paint_NewImage(RYImage, EPD_4IN2BC_WIDTH, EPD_4IN2BC_HEIGHT, 270, EPD_4IN2BC_R_WHITE);
 
 #if 1   // show image for array    
     printf("show image for array\r\n");
-    Paint_SelectImage(RYImage);
-    Paint_Clear(EPD_4IN2BC_R_WHITE);
-    memcpy(BlackImage, gImage_4in2bc_b, Imagesize);
-    EPD_4IN2BC_Display(BlackImage, RYImage);
+    Paint_SelectImage(BlackImage);
+    Paint_DrawBitMap(gImage_4in2bc_b);
+    EPD_4IN2BC_SetRam(BlackImage, NULL);
+    EPD_4IN2BC_RefreshDisplay();
     EPD_Delay_ms(2000);
     // Update partial image (for small ram parts, this won't speed up refresh)
     printf("Partial update\r\n");
-    memcpy(BlackImage, gImage_1in54, (200 / 8) * 200);
-    EPD_4IN2BC_SetPartialWindowBlack(BlackImage, 0, 50, 200, 200);
-    EPD_4IN2BC_RefreshDisplay();
-    EPD_Delay_ms(2000);
-    printf("Partial update\r\n");
-    EPD_4IN2BC_SetPartialWindowBlack(BlackImage, 200, 50, 200, 200);
+    EPD_4IN2BC_SetPartialRamBlack(gImage_1in54, 0, 50, 200, 200);
     EPD_4IN2BC_RefreshDisplay();
     EPD_Delay_ms(2000);
 
@@ -82,9 +76,11 @@ int EPD_test(void)
 #if 1   // show image for array    
     printf("show image for array\r\n");
     Paint_SelectImage(BlackImage);
-    Paint_Clear(EPD_4IN2BC_B_WHITE);
-    memcpy(RYImage, gImage_4in2bc_ry, Imagesize);
-    EPD_4IN2BC_Display(BlackImage, RYImage);
+    Paint_DrawBitMap(gImage_4in2bc_b);
+    Paint_SelectImage(RYImage);
+    Paint_DrawBitMap2(gImage_4in2bc_ry, TRUE);
+    EPD_4IN2BC_SetRam(BlackImage, RYImage);
+    EPD_4IN2BC_RefreshDisplay();
     EPD_Delay_ms(2000);
 #endif
 
@@ -119,7 +115,8 @@ int EPD_test(void)
     Paint_DrawNum(10, 33, 123456789, &Font12, EPD_4IN2BC_R_RED, EPD_4IN2BC_R_WHITE);
 
     printf("EPD_Display\r\n");
-    EPD_4IN2BC_Display(BlackImage, RYImage);
+    EPD_4IN2BC_SetRam(BlackImage, RYImage);
+    EPD_4IN2BC_RefreshDisplay();
     EPD_Delay_ms(2000);
 #endif
 
