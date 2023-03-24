@@ -84,6 +84,7 @@
 // #define EPD_2IN36G
 // #define EPD_2IN66
 // #define EPD_2IN66B
+// #define EPD_2IN66BC
 // #define EPD_3IN0G
 // #define EPD_3IN7
 // #define EPD_3IN52
