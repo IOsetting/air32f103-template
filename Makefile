@@ -12,6 +12,8 @@ ENABLE_PRINTF_FLOAT	?= y
 USE_FREERTOS	?= n
 # Build with CMSIS DSP functions, y:yes, n:no
 USE_DSP			?= n
+# Build with USB lib
+USE_USB			?= y
 # Build with Helix MP3 lib, y:yes, n:no
 USE_HELIX		?= n
 # Build with uIP lib, y:yes, n:no
@@ -98,7 +100,12 @@ CFILES 		+= Libraries/CMSIS/DSP/Source/BasicMathFunctions/BasicMathFunctions.c \
 
 INCLUDES	+= Libraries/CMSIS/DSP/PrivateInclude \
 			Libraries/CMSIS/DSP/Include
+endif
 
+
+ifeq ($(USE_USB),y)
+CDIRS		+= Libraries/AIR32_USB-FS-Device_Driver/src
+INCLUDES	+= Libraries/AIR32_USB-FS-Device_Driver/inc
 endif
 
 ifeq ($(USE_HELIX),y)
