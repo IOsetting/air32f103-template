@@ -13,7 +13,7 @@ USE_FREERTOS	?= n
 # Build with CMSIS DSP functions, y:yes, n:no
 USE_DSP			?= n
 # Build with USB lib
-USE_USB			?= y
+USE_USB			?= n
 # Build with Helix MP3 lib, y:yes, n:no
 USE_HELIX		?= n
 # Build with uIP lib, y:yes, n:no
