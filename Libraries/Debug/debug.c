@@ -221,7 +221,7 @@ void Delay_Init()
     RCC_ClocksTypeDef clocks;
     RCC_GetClocksFreq(&clocks);
     SysTick_CLKSourceConfig(SysTick_CLKSource_HCLK_Div8);
-    UsNumber = clocks.HCLK_Frequency / HSE_VALUE;
+    UsNumber = clocks.HCLK_Frequency / 8 / 1000000;
     /** LOAD is 24-bit, LOAD may overflow(> 16,777,215) if multiple by 1000 */
     MsNumber = (u16)UsNumber * 100;
 }
